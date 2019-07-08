@@ -354,6 +354,13 @@
 %% avoiding reprocessing the entire file.
 %\includeonly{intro,conclusions}
 %\includeonly{discussion}
+\def\cond{\; | \;} 
+\usepackage{microtype}
+\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \begin{document}
 
@@ -419,16 +426,13 @@
 %    2. Main body
 % Generally recommended to put each chapter into a separate file
 \include{background}
+\include{relatedwork}
 \include{methodology}
 \include{implementation}
 \include{experiments}
 \include{discussion}
 \include{conclusion}
-%\include{relatedwork}
-%\include{model}
-%\include{impl}
-%\include{discussion}
-%\include{conclusions}
+
 
 %    3. Notes
 %    4. Footnotes

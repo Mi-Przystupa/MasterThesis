@@ -1,47 +1,513 @@
-@String{lncs = {Lecture Notes in Computer Science}}
-@String{procecoop = {Proceedings of the European Conference on
-    Object-Oriented Programming ({ECOOP})}}
 
-@Book{lamport-1994-ladps,
-    author =	{Lamport, Leslie},
-    title =	{\LaTeX: A Document Preparation System},
-    booktitle =	{\LaTeX: A Document Preparation System},
-    year =	1994,
-    edition =	2,
-    publisher =	{Addison-Wesley},
-    isbn =	0201529831,
+@article{Zhang2016VNMT,
+	author    = {Biao Zhang and
+	Deyi Xiong and
+	Jinsong Su},
+	title     = {Variational Neural Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1605.07869},
+	year      = {2016},
+	url       = {http://arxiv.org/abs/1605.07869},
+	archivePrefix = {arXiv},
+	eprint    = {1605.07869},
+	timestamp = {Mon, 13 Aug 2018 16:47:23 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/ZhangXS16b},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
 }
 
-@Book{bringhurst-2002-teots,
-    author =	{Bringhurst, Robert},
-    title =	{The Elements of Typographic Style},
-    booktitle =	{The Elements of Typographic Style},
-    year =	2002,
-    edition =	{2.5},
-    publisher =	{Hartley \& Marks},
-    isbn =	0881791326,
+@misc{
+	shen2019diverse,
+	title={Diverse Machine Translation with a Single Multinomial Latent Variable},
+	author={Tianxiao Shen and Myle Ott and Michael Auli and Marc’Aurelio Ranzato},
+	year={2019},
+	url={https://openreview.net/forum?id=BJgnmhA5KQ},
 }
 
-@InProceedings{kiczales-1997-aop,
-    author =    {Kiczales, Gregor and Lamping, John and
-		    Mendhekar, Anurag and Maeda, Chris and
-		    Lopes, Cristina and Loingtier, Jean-Marc
-		    and Irwin, John},
-    title =     {Aspect-Oriented Programming},
-    booktitle = procecoop,
-    year =	1997,
-    series =    lncs,
-    volume =    2591,
-    pages =     {220--242},
-    keywords =  {aop, aspect-oriented programming},
-    online =	{http://www.parc.xerox.com/csl/groups/sda/pubs/papers/Kiczal
-es-ECOOP97/for-web.pdf},
+@incollection{harshil2018GNMT,
+	title = {Generative Neural Machine Translation},
+	author = {Shah, Harshil and Barber, David},
+	booktitle = {Advances in Neural Information Processing Systems 31},
+	editor = {S. Bengio and H. Wallach and H. Larochelle and K. Grauman and N. Cesa-Bianchi and R. Garnett},
+	pages = {1346--1355},
+	year = {2018},
+	publisher = {Curran Associates, Inc.},
+	url = {http://papers.nips.cc/paper/7409-generative-neural-machine-translation.pdf}
 }
 
-@Book{rowling-1997-hpps,
-    author =	{Rowling, Joanna K.},
-    title =	{Harry Potter and the Philospher's Stone},
-    year =	1997,
-    publisher =	{Bloomsbury},
-    isbn =	0747532699,
+@article{Su2018VRNMT,
+	author    = {Jinsong Su and
+	Shan Wu and
+	Deyi Xiong and
+	Yaojie Lu and
+	Xianpei Han and
+	Biao Zhang},
+	title     = {Variational Recurrent Neural Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1801.05119},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1801.05119},
+	archivePrefix = {arXiv},
+	eprint    = {1801.05119},
+	timestamp = {Mon, 13 Aug 2018 16:47:02 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1801-05119},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{schulz2018StochasticDecoder,
+	title = "A Stochastic Decoder for Neural Machine Translation",
+	author = "Schulz, Philip  and
+	Aziz, Wilker  and
+	Cohn, Trevor",
+	booktitle = "Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+	month = jul,
+	year = "2018",
+	address = "Melbourne, Australia",
+	publisher = "Association for Computational Linguistics",
+	url = "https://www.aclweb.org/anthology/P18-1115",
+	pages = "1243--1252",
+	abstract = "The process of translation is ambiguous, in that there are typically many valid translations for a given sentence. This gives rise to significant variation in parallel corpora, however, most current models of machine translation do not account for this variation, instead treating the problem as a deterministic process. To this end, we present a deep generative model of machine translation which incorporates a chain of latent variables, in order to account for local lexical and syntactic variation in parallel corpora. We provide an in-depth analysis of the pitfalls encountered in variational inference for training deep generative models. Experiments on several different language pairs demonstrate that the model consistently improves over strong baselines.",
+}
+
+@article{sennrich2015ImprovingNMT,
+	author    = {Rico Sennrich and
+	Barry Haddow and
+	Alexandra Birch},
+	title     = {Improving Neural Machine Translation Models with Monolingual Data},
+	journal   = {CoRR},
+	volume    = {abs/1511.06709},
+	year      = {2015},
+	url       = {http://arxiv.org/abs/1511.06709},
+	archivePrefix = {arXiv},
+	eprint    = {1511.06709},
+	timestamp = {Mon, 13 Aug 2018 16:47:05 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/SennrichHB15a},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{edunov2018understandigBackTrans,
+	author    = {Sergey Edunov and
+	Myle Ott and
+	Michael Auli and
+	David Grangier},
+	title     = {Understanding Back-Translation at Scale},
+	journal   = {CoRR},
+	volume    = {abs/1808.09381},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1808.09381},
+	archivePrefix = {arXiv},
+	eprint    = {1808.09381},
+	timestamp = {Mon, 03 Sep 2018 13:36:40 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1808-09381},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{eikema2018AEVNMT,
+	author    = {Bryan Eikema and
+	Wilker Aziz},
+	title     = {Auto-Encoding Variational Neural Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1807.10564},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1807.10564},
+	archivePrefix = {arXiv},
+	eprint    = {1807.10564},
+	timestamp = {Mon, 13 Aug 2018 16:46:58 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1807-10564},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{rezende2014stochasticBackprop,
+	title = 	 {Stochastic Backpropagation and Approximate Inference in Deep Generative Models},
+	author = 	 {Danilo Jimenez Rezende and Shakir Mohamed and Daan Wierstra},
+	booktitle = 	 {Proceedings of the 31st International Conference on Machine Learning},
+	pages = 	 {1278--1286},
+	year = 	 {2014},
+	editor = 	 {Eric P. Xing and Tony Jebara},
+	volume = 	 {32},
+	number =       {2},
+	series = 	 {Proceedings of Machine Learning Research},
+	address = 	 {Bejing, China},
+	month = 	 {22--24 Jun},
+	publisher = 	 {PMLR},
+	pdf = 	 {http://proceedings.mlr.press/v32/rezende14.pdf},
+	url = 	 {http://proceedings.mlr.press/v32/rezende14.html},
+	abstract = 	 {We marry ideas from deep neural networks and approximate Bayesian inference to derive a generalised class of deep, directed generative models, endowed with a new algorithm for scalable inference and learning.   Our algorithm introduces a recognition model to represent an approximate posterior distribution and uses this for optimisation of a variational lower bound.  We develop stochastic backpropagation – rules for gradient backpropagation through stochastic variables – and   derive an algorithm that allows for joint optimisation of the parameters of both the generative and recognition models.  We demonstrate on several real-world data sets that by using stochastic backpropagation and variational inference, we obtain models that are able to  generate realistic samples of data, allow for accurate imputations of missing data, and provide a useful tool for high-dimensional data visualisation.}
+}
+
+@inproceedings{kingma2014autoencodingVB,
+	author    = {Diederik P. Kingma and
+	Max Welling},
+	title     = {Auto-Encoding Variational Bayes},
+	booktitle = {2nd International Conference on Learning Representations, {ICLR} 2014,
+	Banff, AB, Canada, April 14-16, 2014, Conference Track Proceedings},
+	year      = {2014},
+	crossref  = {DBLP:conf/iclr/2014},
+	url       = {http://arxiv.org/abs/1312.6114},
+	timestamp = {Fri, 29 Mar 2019 10:36:36 +0100},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/KingmaW13},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{rezende2015VIwithNF,
+	title = 	 {Variational Inference with Normalizing Flows},
+	author = 	 {Danilo Rezende and Shakir Mohamed},
+	booktitle = 	 {Proceedings of the 32nd International Conference on Machine Learning},
+	pages = 	 {1530--1538},
+	year = 	 {2015},
+	editor = 	 {Francis Bach and David Blei},
+	volume = 	 {37},
+	series = 	 {Proceedings of Machine Learning Research},
+	address = 	 {Lille, France},
+	month = 	 {07--09 Jul},
+	publisher = 	 {PMLR},
+	pdf = 	 {http://proceedings.mlr.press/v37/rezende15.pdf},
+	url = 	 {http://proceedings.mlr.press/v37/rezende15.html},
+	abstract = 	 {The choice of the approximate posterior distribution is one of the core problems in variational inference. Most applications of variational inference employ simple families of posterior approximations in order to allow for efficient inference, focusing on mean-field or other simple structured approximations. This restriction has a significant impact on the quality of inferences made using variational methods. We introduce a new approach for specifying flexible, arbitrarily complex and scalable approximate posterior distributions. Our approximations are distributions constructed through a normalizing flow, whereby a simple initial density is transformed into a more complex one by applying a sequence of invertible transformations until a desired level of complexity is attained. We use this view of normalizing flows to develop categories of finite and infinitesimal flows and provide a unified view of approaches for constructing rich posterior approximations. We demonstrate that the theoretical advantages of having posteriors that better match the true posterior, combined with the scalability of amortized variational approaches, provides a clear improvement in performance and applicability of variational inference.}
+}
+
+@article{bowman2015GeneratingSent,
+	author    = {Samuel R. Bowman and
+	Luke Vilnis and
+	Oriol Vinyals and
+	Andrew M. Dai and
+	Rafal J{\'{o}}zefowicz and
+	Samy Bengio},
+	title     = {Generating Sentences from a Continuous Space},
+	journal   = {CoRR},
+	volume    = {abs/1511.06349},
+	year      = {2015},
+	url       = {http://arxiv.org/abs/1511.06349},
+	archivePrefix = {arXiv},
+	eprint    = {1511.06349},
+	timestamp = {Mon, 13 Aug 2018 16:47:06 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/BowmanVVDJB15},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+@ARTICLE{bahdanau2014NMTBYJoint,
+	author = {Bahdanau, Dzmitry and Cho, Kyunghyun and Bengio, Yoshua},
+	keywords = {Computer Science - Computation and Language, Computer Science - Learning, Computer Science - Neural and Evolutionary Computing, Statistics - Machine Learning},
+	month = sep,
+	title = {Neural Machine Translation by Jointly Learning to Align and Translate},
+	journal = {arXiv e-prints},
+	volume = {abs/1409.0473},
+	year = {2014},
+	url = {https://arxiv.org/abs/1409.0473},
+}
+
+@misc{bastings2018annotated,
+	title={The Annotated Encoder-Decoder with Attention},
+	author={Bastings, Joost},
+	journal={https://bastings.github.io/annotated\_encoder\_decoder/},
+	year={2018}
+}
+
+@inproceedings{zbib2012MTArabicDial,
+	author = {Zbib, Rabih and Malchiodi, Erika and Devlin, Jacob and Stallard, David and Matsoukas, Spyros and Schwartz, Richard and Makhoul, John and Zaidan, Omar F. and Callison-Burch, Chris},
+	title = {Machine Translation of Arabic Dialects},
+	booktitle = {Proceedings of the 2012 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
+	series = {NAACL HLT '12},
+	year = {2012},
+	isbn = {978-1-937284-20-6},
+	location = {Montreal, Canada},
+	pages = {49--59},
+	numpages = {11},
+	url = {http://dl.acm.org/citation.cfm?id=2382029.2382037},
+	acmid = {2382037},
+	publisher = {Association for Computational Linguistics},
+	address = {Stroudsburg, PA, USA},
+} 
+
+
+@article{ziegler2019LatentNFforDiscrete,
+	author    = {Zachary M. Ziegler and
+	Alexander M. Rush},
+	title     = {Latent Normalizing Flows for Discrete Sequences},
+	journal   = {CoRR},
+	volume    = {abs/1901.10548},
+	year      = {2019}
+}
+
+@book{koehnSMT2010,
+	author = {Koehn, Philipp},
+	title = {Statistical Machine Translation},
+	year = {2010},
+	isbn = {0521874157, 9780521874151},
+	edition = {1st},
+	publisher = {Cambridge University Press},
+	address = {New York, NY, USA},
+} 
+
+@article{lample2018PhraseNeuralUnsuperviseMT,
+	author    = {Guillaume Lample and
+	Myle Ott and
+	Alexis Conneau and
+	Ludovic Denoyer and
+	Marc'Aurelio Ranzato},
+	title     = {Phrase-Based {\&} Neural Unsupervised Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1804.07755},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1804.07755},
+	archivePrefix = {arXiv},
+	eprint    = {1804.07755},
+	timestamp = {Mon, 13 Aug 2018 16:48:35 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1804-07755},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Lample2017UnsuperviseMT,
+	author    = {Guillaume Lample and
+	Ludovic Denoyer and
+	Marc'Aurelio Ranzato},
+	title     = {Unsupervised Machine Translation Using Monolingual Corpora Only},
+	journal   = {CoRR},
+	volume    = {abs/1711.00043},
+	year      = {2017},
+	url       = {http://arxiv.org/abs/1711.00043},
+	archivePrefix = {arXiv},
+	eprint    = {1711.00043},
+	timestamp = {Mon, 13 Aug 2018 16:48:41 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1711-00043},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{artetxe2017UnsupervisedNMT,
+	author    = {Mikel Artetxe and
+	Gorka Labaka and
+	Eneko Agirre and
+	Kyunghyun Cho},
+	title     = {Unsupervised Neural Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1710.11041},
+	year      = {2017},
+	url       = {http://arxiv.org/abs/1710.11041},
+	archivePrefix = {arXiv},
+	eprint    = {1710.11041},
+	timestamp = {Mon, 13 Aug 2018 16:47:05 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1710-11041},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@incollection{sonderby2016LadderVAE,
+	title = {Ladder Variational Autoencoders},
+	author = {S\o nderby, Casper Kaae and Raiko, Tapani and Maal\o e, Lars and S\o nderby, S\o ren Kaae and Winther, Ole},
+	booktitle = {Advances in Neural Information Processing Systems 29},
+	editor = {D. D. Lee and M. Sugiyama and U. V. Luxburg and I. Guyon and R. Garnett},
+	pages = {3738--3746},
+	year = {2016},
+	publisher = {Curran Associates, Inc.},
+	url = {http://papers.nips.cc/paper/6275-ladder-variational-autoencoders.pdf}
+}
+
+@article{cho2014GRU,
+	author    = {Kyunghyun Cho and
+	Bart van Merrienboer and
+	{\c{C}}aglar G{\"{u}}l{\c{c}}ehre and
+	Fethi Bougares and
+	Holger Schwenk and
+	Yoshua Bengio},
+	title     = {Learning Phrase Representations using {RNN} Encoder-Decoder for Statistical
+	Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1406.1078},
+	year      = {2014},
+	url       = {http://arxiv.org/abs/1406.1078},
+	archivePrefix = {arXiv},
+	eprint    = {1406.1078},
+	timestamp = {Mon, 13 Aug 2018 16:46:44 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/ChoMGBSB14},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{hochreiter1997LSTM,
+	author = {Hochreiter, Sepp and Schmidhuber, J\"{u}rgen},
+	title = {Long Short-Term Memory},
+	journal = {Neural Comput.},
+	issue_date = {November 15, 1997},
+	volume = {9},
+	number = {8},
+	month = nov,
+	year = {1997},
+	issn = {0899-7667},
+	pages = {1735--1780},
+	numpages = {46},
+	url = {http://dx.doi.org/10.1162/neco.1997.9.8.1735},
+	doi = {10.1162/neco.1997.9.8.1735},
+	acmid = {1246450},
+	publisher = {MIT Press},
+	address = {Cambridge, MA, USA},
+} 
+
+@article{zhao2017InfoVAE,
+	author    = {Shengjia Zhao and
+	Jiaming Song and
+	Stefano Ermon},
+	title     = {InfoVAE: Information Maximizing Variational Autoencoders},
+	journal   = {CoRR},
+	volume    = {abs/1706.02262},
+	year      = {2017},
+	url       = {http://arxiv.org/abs/1706.02262},
+	archivePrefix = {arXiv},
+	eprint    = {1706.02262},
+	timestamp = {Mon, 13 Aug 2018 16:46:40 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/ZhaoSE17b},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Burgess2018UnderstandingdisentBVAE,
+	author    = {Christopher P. Burgess and
+	Irina Higgins and
+	Arka Pal and
+	Lo{\"{\i}}c Matthey and
+	Nick Watters and
+	Guillaume Desjardins and
+	Alexander Lerchner},
+	title     = {Understanding disentangling in {\(\beta\)}-VAE},
+	journal   = {CoRR},
+	volume    = {abs/1804.03599},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1804.03599},
+	archivePrefix = {arXiv},
+	eprint    = {1804.03599},
+	timestamp = {Mon, 13 Aug 2018 01:00:00 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1804-03599},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{bingham2018pyro,
+	author = {Bingham, Eli and Chen, Jonathan P. and Jankowiak, Martin and Obermeyer, Fritz and
+	Pradhan, Neeraj and Karaletsos, Theofanis and Singh, Rohit and Szerlip, Paul and
+	Horsfall, Paul and Goodman, Noah D.},
+	title = {{Pyro: Deep Universal Probabilistic Programming}},
+	journal = {Journal of Machine Learning Research},
+	year = {2018}
+}
+
+@article{sennrich2015NMTRarwordsBPE,
+	author    = {Rico Sennrich and
+	Barry Haddow and
+	Alexandra Birch},
+	title     = {Neural Machine Translation of Rare Words with Subword Units},
+	journal   = {CoRR},
+	volume    = {abs/1508.07909},
+	year      = {2015},
+	url       = {http://arxiv.org/abs/1508.07909},
+	archivePrefix = {arXiv},
+	eprint    = {1508.07909},
+	timestamp = {Mon, 13 Aug 2018 16:47:17 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/SennrichHB15},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{janwillem2018IntrotoProbProg,
+	author    = {Jan{-}Willem van de Meent and
+	Brooks Paige and
+	Hongseok Yang and
+	Frank Wood},
+	title     = {An Introduction to Probabilistic Programming},
+	journal   = {CoRR},
+	volume    = {abs/1809.10756},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1809.10756},
+	archivePrefix = {arXiv},
+	eprint    = {1809.10756},
+	timestamp = {Fri, 05 Oct 2018 01:00:00 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1809-10756},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{koehn2017NMT,
+	author    = {Philipp Koehn},
+	title     = {Neural Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1709.07809},
+	year      = {2017}
+}
+
+@article{chen2016VariationalLossyAE,
+	author    = {Xi Chen and
+	Diederik P. Kingma and
+	Tim Salimans and
+	Yan Duan and
+	Prafulla Dhariwal and
+	John Schulman and
+	Ilya Sutskever and
+	Pieter Abbeel},
+	title     = {Variational Lossy Autoencoder},
+	journal   = {CoRR},
+	volume    = {abs/1611.02731},
+	year      = {2016}
+}
+
+
+@article{kingma2016IAF,
+	author    = {Diederik P. Kingma and
+	Tim Salimans and
+	Max Welling},
+	title     = {Improving Variational Inference with Inverse Autoregressive Flow},
+	journal   = {CoRR},
+	volume    = {abs/1606.04934},
+	year      = {2016}
+}
+
+@inproceedings{Papineni2002BLEU,
+	author = {Papineni, Kishore and Roukos, Salim and Ward, Todd and Zhu, Wei-Jing},
+	title = {BLEU: A Method for Automatic Evaluation of Machine Translation},
+	booktitle = {Proceedings of the 40th Annual Meeting on Association for Computational Linguistics},
+	series = {ACL '02},
+	year = {2002},
+	location = {Philadelphia, Pennsylvania},
+	pages = {311--318},
+	numpages = {8},
+	url = {https://doi.org/10.3115/1073083.1073135},
+	doi = {10.3115/1073083.1073135},
+	acmid = {1073135},
+	publisher = {Association for Computational Linguistics},
+	address = {Stroudsburg, PA, USA},
+} 
+
+@article{tomczak2016Householder,
+	author    = {Jakub M. Tomczak and
+	Max Welling},
+	title     = {Improving Variational Auto-Encoders using Householder Flow},
+	journal   = {CoRR},
+	volume    = {abs/1611.09630},
+	year      = {2016}
+}
+@incollection{kingma2018GLOW,
+	title = {Glow: Generative Flow with Invertible 1x1 Convolutions},
+	author = {Kingma, Durk P and Dhariwal, Prafulla},
+	booktitle = {Advances in Neural Information Processing Systems 31},
+	editor = {S. Bengio and H. Wallach and H. Larochelle and K. Grauman and N. Cesa-Bianchi and R. Garnett},
+	pages = {10215--10224},
+	year = {2018},
+	publisher = {Curran Associates, Inc.}
+}
+%\/ is for above citation
+%url = http://papers.nips.cc/paper/8224-glow-generative-flow-with-invertible-1x1-convolutions.pdf
+@inproceedings{Berg2018SylvesterNF,
+	title={Sylvester Normalizing Flows for Variational Inference},
+	author={Rianne van den Berg and Leonard Hasenclever and Jakub M. Tomczak and Max Welling},
+	booktitle={UAI},
+	year={2018}
+}
+
+@InProceedings{post2018SacreBLEU,
+	author = 	"Post, Matt",
+	title = 	"A Call for Clarity in Reporting {BLEU} Scores",
+	booktitle = 	"Proceedings of the Third Conference on Machine Translation: Research Papers",
+	year = 	"2018",
+	publisher = 	"Association for Computational Linguistics",
+	pages = 	"186--191",
+	location = 	"Belgium, Brussels",
+	url = 	"http://aclweb.org/anthology/W18-6319"
+}
+
+@inproceedings{
+	he2018lagging,
+	title={Lagging Inference Networks and Posterior Collapse in Variational Autoencoders},
+	author={Junxian He and Daniel Spokoyny and Graham Neubig and Taylor Berg-Kirkpatrick},
+	booktitle={International Conference on Learning Representations},
+	year={2019},
+	url={https://openreview.net/forum?id=rylDfnCqF7},
 }

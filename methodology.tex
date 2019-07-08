@@ -1,3 +1,99 @@
 \chapter{Methodology}
 
-Hello world
+
+\section{Normalizing Flows for Machine Translation}
+
+In this section we discuss incorporating normalizing flows into latent variable neural machine translation. We also discuss some challenges with incorporating normalizing flows based on the effect they have on the ELBO. 
+
+\subsection{Applying Flows to Latent Variables}
+It is relatively easy to incorporate normalizing flows into existing LVNMT models. During the training procedure, one only needs to apply $k$ functions $f_{i}$ sequentially to samples from the base distribution $p(z_{0})$: 
+
+\begin{equation}
+z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
+\end{equation}
+
+Here, $\circ$ is a shorthand for nested calls of the functions ($f_{2}(f_{1}(f_{0}(z_{0})))$). For our experiments, the base distribution $p(z_{0})$ refers to our variational distribution $q_{\phi}(\textbf{z} \cond{\textbf{x}, \textbf{y}})$ and at decode time we use $p_{\theta}(\textbf{z} \cond{\textbf{x}})$ which is the same approach taken by \citet{Zhang2016VNMT}. For deterministic decoding, we set $z_{0} = \mu_{\theta}(x)$ where $\mu_{\theta}$ is produced by our parameterized prior distribution, and apply normalizing flows on this fixed value instead of samples from $p_{\theta}(z_{0} \cond{x})$
+
+\subsection{Challenges with Optimization}
+%The one other consideration is that the inclusion of normalizing flows changes the ELBO in the following way:
+
+%\begin{align}
+%\begin{split}\label{eq:1}
+%   & E_{q(z^{0}\cond{x})} [ \log p(x \cond{z^{k}}) ] - D_{KL}(q(z^{(0)} \cond{x}) || p(z^{(k)})) \\
+%  &   +  E_{q(z^{0} \cond{x})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta z^{(k-1)}} \bigg| \bigg]  
+%\end{split}
+%\end{align}
+
+%For details on how this ELBO is derived refer to \citealp[Section 4.2]{rezende2015VIwithNF} which shows it's derivation with planar flows. Based on this formulation which was used on images, it can be written for machine translation as follows
+
+The one other consideration with the inclusion of normalizing flows is how they change the ELBO. Here we present a formulation of the ELBO specific to machine translation which is based on the derivation from \citealp[Section 4.2]{rezende2015VIwithNF}.
+
+\begin{align}
+	\begin{split}\label{eq:2}
+		&
+		E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}^{(k)}}, \textbf{x}, y_{<j}) \bigg] \\
+		& - KL(q_{\phi}(\textbf{z}_{(0)} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}^{(k)} \cond{\textbf{x}})) \\
+		&   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta \textbf{z}^{(k-1)}} \bigg| \bigg]  
+	\end{split}
+\end{align}
+
+The first term represent maximizing the likelihood of observed sequences i.e. translating data correctly. The other two terms represent the introduced regularization from the latent variable $\textbf{z}$ in the model. 
+%fyi
+%https://tex.stackexchange.com/questions/44450/how-to-align-a-set-of-multiline-equations
+
+The problem with this objective is that the inclusion of this KL divergence can lead to a problem referred to as ''posterior collapse'' \cite{he2018lagging}. This refers to the scenario where, in order to maximize the ELBO, the variational distribution parameters, for all the training data, are pushed to more closely match the prior distribution parameters. In the typical case where the prior is the unit Gaussian distribution, this leads to uninformative codes in which case the latent variable provides no additional information to the model. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. 
+
+%The problem with this objective is that although $z_{k}$ is the product of of a number of transformations, the choice of prior $p(z)$ is still typically the unit Gaussian distribution. This choice of priors in the typical ELBO objective, has been shown to lead to the problem of ``mode collapse``, where the value of the KL term is near 0 producing uninformative latent variables. This phenomena is well documented by a number of authors, and we recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. 
+
+%Although the additional expectation term for the determinant of the Jacobian encourages the model to maximize the combined shrinkage and expansion each of the flows have on the model, we still have the dependency between the original base distribution and the chosen prior distribution.  This is particularly a problem with strong generators, which refer to models flexible enough to encode all the information of the data. This could be interpreted as saying that $Y$ is independent of $Z$ at decoding time $p(Y \cond{X, Z}) = p(Y \cond{X})$.  
+
+For this work, we address this potential problem with a previously proposed approach referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE}. KL-annealing is the process of annealing the weight associated to the divergence term in the ELBO from 0.0 (no influence) to 1.0 (original weight). We follow previous research by using a linear annealing schedule to update the weight of our regularization terms after each mini-batch update until it reaches 1.0 and the original ELBO objective is optimized for the remaining duration of training. 
+%means, even if we learned a good transformation of the latent space, all our latent codes can still be uninformative and provide no additional information to the translation as all data points would essentially be samples from the prior distribution still. 
+
+%Previous research in latent feature disentanglement has attempted to provide a theoretical understanding of this approach in the context of weaker generators through a coding theory perspective \cite{Burgess2018UnderstandingdisentBVAE}.\footnote{We note that it is unlikely that increasing the KL term above 1 would be effective in the context of disentangling features for strong generators } Other research has explored altering the Expected Lower Bound by changing the divergence term \cite{zhao2017InfoVAE}. We leave exploring alternative formulations  of the ELBO for future work as applying this objective in the context of neural machine translation (or even just recurrent neural networks)), to our knowledge, remains to be explored.
+
+%Additionally, it should be noted that not all flows would affect the objective the same. So called "volume presevering" flows are a class of normalizing flows where the determinant of the Jacobian is equal to one. In this case, the Expectation of the absolute value of the Jacobian determinant would be a constant and we would arrive at the original ELBO objective. 
+
+%For this work, we focus on previously proposed approaches to address this problem including KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word-dropout \cite{bowman2015GeneratingSent}. KL-annealing refers to the process of increasing the weight associated to the diveregence term in the ELBO from 0.0 (no influence) to 1.0 (original weight). Typically the annealing schedule is linear, where the weight to the KL term is increased linearly after each mini-batch  until it reaches 1.0 and the original ELBO objective is optimized for the remaining duration of training. Word-drop out is an approach that involves 
+
+%Previous research in latent feature disentanglement has attempted to provide a theoretical understanding of this approach in the context of weaker generators through a coding theory perspective \cite{Burgess2018UnderstandingdisentBVAE}.\footnote{We note that it is unlikely that increasing the KL term above 1 would be effective in the context of disentangling features for strong generators } Other research has explored altering the Expected Lower Bound by changing the divergence term \cite{zhao2017InfoVAE}. We leave exploring alternative formulations  of the ELBO for future work as applying this objective in the context of neural machine translation (or even just recurrent neural networks)), to our knowledge, remains to be explored.
+\subsection{Choice of Normalizing Flows}
+In the normalizing flows literature, the general trend is to find classes of invertible functions that have more computationally efficient determinants of the Jacobian. This has lead to a variety of normalizing flows available to select from which come with different trade-offs between diverse transformations and fast computation. For our experiments we consider planar flows which are discussed by \citet{rezende2015VIwithNF} and inverse autoregressive flows discussed by \citet{kingma2016IAF}. We leave exploring alternative choices of flows as future work.
+
+
+%\subsection{Types of Flows}
+
+%There are a number of different classes of normalizing flows available which seek to make calculating the determinant of the Jacobian more computationally tractable. We discuss briefly planar flows and inverse autoregressive flows which are the flows we conduct our experiments with.
+
+%\paragraph{Planar Flows}
+%Planar flows are a member of a general class of transformations of the following shape:
+
+%\begin{equation}
+%    y = z + u h(W^{T} z + b)
+%\end{equation}
+
+%where $u$, $W$, $b$ are free parameters which are learned during optimization. They can be viewed as a form of multilayer perceptron and have a nice determinant of the  Jacobian , which makes for efficient computation:
+
+%\begin{equation}
+%    |det( \frac{\partial J}{\partial z}) | = | det( 1 + u_{k}  (h'(w_{k}^{T} z_{k-1} + b_{k})w_{k} ) |
+%\end{equation}
+
+%It is difficult to determine if the time complexity gains with inverse autoregressive flows is in the context of LVNMT systems. This skepticism is in part due to previous works in latent variable translation that found a smaller dimensional latent variable vector worked better for translation.  
+%In the context of latent variable machine translation, we hypothesize this flow will  adequately and the concern of a more expensive Jacobian calculation is less of a concern as smaller latent dimension vectors have shown to be sufficient in translation \cite{schulz2018StochasticDecoder}.
+
+%NOTE: what is considered a LARGE latent space? In my mind 50 is pretty small, but is that actually the case? what if I used 10? also, forget all this KL annealing crap what if we just you know...used a smaller dimensional latent vector? the analytical form of the KL term is a sum of the dimensions so fewer dimensions means less influence on the objective. Just saying...
+
+%\paragraph{Autoregressive Flows} 
+%These are a type of normalizing flow where an autoregressive neural network conditions which transforms samples $z_{k}$ as follows:
+
+%\begin{equation}
+%    z_{k} = u_{k} + \sigma_{k} \odot z_{k-1}
+%\end{equation}
+
+%where  the the variables $u_{k}$ and $\sigma_{k}$ are the outputs of an autoregressive neural network and $\odot$ refers to the hadamard product. 
+
+%\begin{equation}
+%    u_{k,d'} , \sigma_{k, d} = \text{MLP}_{k,d} (z_{k-1, <d})
+%\end{equation}
+
+%These flows allows for linear time computation of the jacobian determinant because the Jacobian works out to be a lower triangular matrix and can be calculated in linear time as the product of the diagonal of the matrix.
