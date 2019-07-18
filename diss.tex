@@ -353,13 +353,21 @@
 %% avoiding reprocessing the entire file.
 %\includeonly{intro,conclusions}
 %\includeonly{discussion}
-\def\cond{\; | \;} 
+
+
+
 \usepackage{microtype}
 \usepackage{graphicx}
 %\usepackage{subfigure}
 \usepackage{booktabs} % for professional tables
 \usepackage{amsmath}
 \usepackage{amssymb}
+
+
+%Michael defined stuff
+\newcommand\reminder[1]{\textcolor{magenta}{ #1}}
+\def\cond{\; | \;} 
+\DeclareMathOperator{\E}{\mathbb{E}}
 
 \begin{document}
 
