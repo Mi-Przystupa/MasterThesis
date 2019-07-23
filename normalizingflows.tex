@@ -1,7 +1,7 @@
-\chapter{Methodology}
+\chapter{Normalizing Flows in Machine Translation}
 
+In this chapter we discuss the implementation details for the \ac{LVNMT} models we consider for analysis. Along with this includes several design choices we made based on related research and our own findings in the preliminary experiments section. 
 
-\section{Normalizing Flows for Machine Translation}
 
 In this section we discuss incorporating normalizing flows into latent variable neural machine translation. We also discuss some challenges with incorporating normalizing flows based on the effect they have on the ELBO. 
 
@@ -16,16 +16,15 @@ Here, $\circ$ is a shorthand for nested calls of the functions ($f_{2}(f_{1}(f_{
 
 \subsection{Challenges with Optimization}
 
-
 The one other consideration with the inclusion of normalizing flows is how they change the ELBO. Here we present a formulation of the ELBO specific to machine translation which is based on the derivation from \citealp[Section 4.2]{rezende2015VIwithNF}.
 
 \begin{align}
-	\begin{split}\label{eq:2}
-		&
-		E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}^{(k)}}, \textbf{x}, y_{<j}) \bigg] \\
-		& - KL(q_{\phi}(\textbf{z}_{(0)} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}^{(k)} \cond{\textbf{x}})) \\
-		&   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta \textbf{z}^{(k-1)}} \bigg| \bigg]  
-	\end{split}
+\begin{split}\label{eq:2}
+&
+E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}^{(k)}}, \textbf{x}, y_{<j}) \bigg] \\
+& - KL(q_{\phi}(\textbf{z}_{(0)} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}^{(k)} \cond{\textbf{x}})) \\
+&   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta \textbf{z}^{(k-1)}} \bigg| \bigg]  
+\end{split}
 \end{align}
 
 The first term represent maximizing the likelihood of observed sequences i.e. translating data correctly. The other two terms represent the introduced regularization from the latent variable $\textbf{z}$ in the model. 
@@ -34,10 +33,10 @@ The first term represent maximizing the likelihood of observed sequences i.e. tr
 
 The problem with this objective is that the inclusion of this KL divergence can lead to a problem referred to as ''posterior collapse'' \cite{he2018lagging}. This refers to the scenario where, in order to maximize the ELBO, the variational distribution parameters, for all the training data, are pushed to more closely match the prior distribution parameters. In the typical case where the prior is the unit Gaussian distribution, this leads to uninformative codes in which case the latent variable provides no additional information to the model. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. 
 
+ 
+
 For this work, we address this potential problem with a previously proposed approach referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE}. KL-annealing is the process of annealing the weight associated to the divergence term in the ELBO from 0.0 (no influence) to 1.0 (original weight). We follow previous research by using a linear annealing schedule to update the weight of our regularization terms after each mini-batch update until it reaches 1.0 and the original ELBO objective is optimized for the remaining duration of training. 
 
-\subsection{Choice of Normalizing Flows}
-In the normalizing flows literature, the general trend is to find classes of invertible functions that have more computationally efficient determinants of the Jacobian. This has lead to a variety of normalizing flows available to select from which come with different trade-offs between diverse transformations and fast computation. For our experiments we consider planar flows which are discussed by \citet{rezende2015VIwithNF} and inverse autoregressive flows discussed by \citet{kingma2016IAF}. We leave exploring alternative choices of flows as future work.
+\reminder{section flows you chose}
 
-
-
+\reminder{talk about ammorization of flow parameters}

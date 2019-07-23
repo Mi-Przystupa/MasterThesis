@@ -1,0 +1,57 @@
+\chapter{Latent Variable Neural Machine Translation}
+
+
+In this section, we attempt to more generally classify latent variable neural machine translation. The two main considerations we have seen in the literature are the type of distribution to model, and the number of latent variables. 
+
+We note that latent variables have also been considered in formulations that may not lend themselves to the framework as discussed here. An example of this is the work of \reminder{cite that paper that uses a latent variable to pick a decoder} where the latent variable is used to pick a decoder. 
+
+\reminder{ structure it MORE around the choices you make}
+\reminder{section discriminative model}
+
+\reminder{blah blah blah, discriminative model}
+\reminder{mention how THEY do it, vs how WE do it}
+\reminder{also mention formulation YOU consider}
+
+\reminder{section generataive formulation}
+\reminder{blah blah blah, we use this base model}
+\reminder{architecture if it's different...hopefully not}
+
+\section{Choice of Distribution}
+
+When we speak of the choice of distribution to represent, the two choices are either the discriminative distribution $P(Y \cond{X})$ or the joint distribution $P(Y , X)$. In either scenario, a latent variable $z$ is introduced into the distribution and should be marginalized out during the translation process. 
+
+With a discriminative \ac{LVNMT}, this additional distribution is included in the following way. 
+
+\begin{equation}
+p(Y \cond{X})  = \int p(y \cond{x,z}) p(z \cond{x}) dz
+\end{equation}
+
+This formulation was the first formulation considered in the literature \ac{LVNMT} \cite{Zhang2016VNMT}. Typically, the assumption is that the integral is intractable, which is where a variational approach is used to approximate it by introducing a variational distribution and instead optimizing the \ac{ELBO}. This formulation is the typical modeling assumption in regular \ac{NMT}. 
+
+A more general framework is modeling instead the generative, or joint, distribution $p(X,Y,z)$ which has been found to work better in several previous works \cite{harshil2018GNMT,eikema2018AEVNMT}. Even without the introduced latent variable authors found minute improvements compared to the discriminative formulation \cite{eikema2018AEVNMT}. One of the advantages of this formulation is it allows several ways different ways to formulate the distribution under certain independency assumptions. In the literature, the most successful one has been the following.
+
+\begin{equation}
+P(X, Y, z) = \int P(Y \cond{X, z}) P(X \cond{z}) P(z) dz	
+\end{equation}
+
+In this context, $z$ can be interpreted as a share representation agnostic to the language of choice. \footnote{The linguist term for this is a "Lingua franca"} This representation comes with certain disadvantages which we shall discuss later, but with this model there poses additional future work opportunities by itself. 
+
+
+\section{Number of Latent Variables}
+Up until now, most of discussion of \ac{LVNMT} as implicitly assumed a single global latent variable, but this does not have to be the case. 
+
+To our knowledge, this has only been explored in the context of discriminative models.
+\begin{equation}
+P(Y \cond{X, z_{1}, ..., z_{T}}) = \int \prod_{t=1}^{T} P(y_{t} \cond{x_{t}, z_{t}})
+\end{equation}
+Some of the motivations for this largely are to improve the latent representation encoded at each time step, or diversify translations.
+
+\section{Specifying the Variational Distribution}
+
+The one other consideration in \ac{LVNMT} literature is the choice of the variational distribution, or \textit{inference} model. to mitigate the issue of intractable integration. In the \ac{ELBO} it is conceivable to choose any variational distribution that conditions on varying combinations of the source $X$ and target $Y$ sentences. 
+
+In some of the literature, authors choose to variational distribution on both $X$ and $Y$. In this context, the assumption is that the variational distribution represents a \textit{semantic} global variable, although this is just inferred from the conditioning of the distribution. This particular choice can cause issues at decode time as it assumes the availability of target $Y$ for translation. 
+
+Another choice is to instead condition only on one or the other sentences. We have seen this approach taken in sequential latent variable \ac{LVNMT} models where the author use it as a form of regularization. These models follow  the variational \ac{RNN} idea of optimization instead. 
+
+\section{The Neural Machine Translation Architecture}

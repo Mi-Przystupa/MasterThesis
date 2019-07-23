@@ -1,3 +1,32 @@
 \chapter{Experiments}
 
-hello world
+In this chapter we discuss the experiments we ran to compare the performance of \ac{LVNMT} models with and without normalizing flows. We chose our hyperparameters for the core models to be based on the previous works whose models we considered in our analysis. These values can be found in the supplementary material section as well. 
+
+The only other hyperparameters we tuned over were the KL-annealing schedule and the number of flows considered. 
+
+The datasets we included in our analysis are the following, and were preprocesssed in the same ways as the previous works to give a more fair comparison between models. 
+
+
+We considered a number of translation scenarios including general translation, longer sentence translation, and out of domain translations. In each of these scenarios, we ran each model and compared our results along with the original results when possible. We predominantly stick with measuring BLEU scores as this metric was available in all previous studies. In addition to these translation scenarios, we also looked at the important of the latent variable in the neural machine translation systems considering both the magnitude of the KL divergence and manipulating the latent variable Z. 
+
+\section{General Translation}
+
+Table \reminder{\#} shows the BLEU score of all out on each respective data set. Our findings should (hopefully) at least be consistent between the previous works...else ugh ooooh.
+
+\section{Long Sentence Translation}
+
+we created synthetic longer german sentences just as VNMT and compare on this. We also look at the change of BLEU score at increasing sentence lengths.
+
+\section{Out of Domain Translation}
+
+We considered different data sets to do this..
+
+\section{Understanding Latent Variable}
+
+considerations:
+\begin{enumerate}
+	\item set Z = 0 vector
+	\item set Z ~ N(0, 1) vector
+	\item set Z swapped with nearest neighbors??
+	\item Visualize latent variables from transformation
+\end{enumerate}

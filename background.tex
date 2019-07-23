@@ -1,6 +1,14 @@
 \chapter{Background}
 
-In this section, we provide background information on variational autoencoders, normalizing flows, and give a general description of latent variable neural machine translation modeling. 
+In this section, we provide background information on several subjects related to the work in this thesis. This include discussion the formulation of the variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific NMT model considered in the chapter on \ac{LVNMT} models.  
+
+
+\subsection{Neural Machine Translation}
+
+Neural machine translation refers to neural network models trained specifically for the trask of machine translation. The best of these models are currently the \textit{de-facto} approach in machine translation research providing \ac{SOTA} performance on a number of benchmark language pair data sets.
+ A variety of different architectures have been considered in the literature. These include CNN architectures which apply convolutions to generate sequences \reminder{cite sources}, \ac{RNN} architectures \cite{bahdanau2014NMTBYJoint,cho2014GRU}, the Transformer \reminder{cite vaswani}, and many other variations. There are many options for translation systems, but at the core of the most successful models are 
+
+The most prominent architectures generally are \ac{seq2seq} models ~\cite{koehn2017NMT} have emerged as the most prominent architecture in the NMT literature. In seq2seq models, source sentences $X$ are \textit{encoded} as a series of latent representations capturing words in context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $Y$. For our work, we consider both a recurrent neural network (RNN) with \textit{attention} and \textit{Transformer} seq2seq models for our experiments. We briefly introduce each of these next.
 
 \section{Variational Autoencoders}
 
@@ -91,17 +99,14 @@ I'm not as familiar with these, but basically your flows is an ordinary differen
 This is our own classification, but several otherwise "unclassified" flows models follow this formulation. In these types of Normalizing flows,
 
 
-\section{Latent Variable Neural Machine Translation}
+\reminder{Misc things I'm not quite sure where to put yet...}
+As previously mentioned, \ac{LVNMT} has been an active area of research in recent years. The original discriminative model was proposed by \citet{Zhang2016VNMT} who found it to improved general translation and gave better translations on longer sequences. This model was then extended by the work of \citet{Su2018VRNMT} to sequential variational \ac{RNN}s providing again better longer sentence translations. An alternative formulation of the variational distribution was proposed by \citet{schulz2018StochasticDecoder} where the emphasis was on diversifying translations. In the generative modeling approach the idea was proposed by the works of \citet{harshil2018GNMT} which enabled word imputation translation as well as a form of unsupervised translation in the \ac{LVNMT} framework. Concurrently, \citet{eikema2018AEVNMT} found the generative formulation to be marginally better than the discriminative model without the latent variable and showed these models could be slightly more robust to domain mismatch. 
 
-In this section, we attempt to more generally classify latent variable model neural machine translation. The two main considerations we have seen in the literature are the type of distribution to model, and the number of latent variables. 
+To our knowledge, the applications of normalizing flows have been considered sparsely in natural language processing, and largely focused on language modeling. \citet{bowman2015GeneratingSent} briefly mention normalizing flows in the context of variational auto-regressive language modeling, but did not report their empirical findings. \citet{ziegler2019LatentNFforDiscrete} provides empirical evidence on applying normalizing flows for character level language modeling. They proposed several non-autoregressive models that allow for parallel decoding, and provided evidence on the multi-modal behaviors of language factors. In this work, we focus on autoregressive approaches applied to neural machine translations.
 
-We note that latent variables have also been considered in formulations that may not lend themselves to the framework as discussed here. An example of this is the work of \reminder{cite that paper that uses a latent variable to pick a decoder} where the latent variable is used to pick a decoder. 
+Specific to research on developing normalizing flow functions, there has been recent work developing discrete normalizing flows. \cite{tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows} propose similar flows that allow direct application of normalizing flows on discrete distributions. \reminder{read these papers and give the gist of them here}. \reminder{They do this by incorporating modulus mathematics and some something functions on top of this}.
 
-\subsection{Choice of Distribution}
 
-When we speak of the choice of distribution to represent, the two choices are either the discriminative distribution $P(Y \cond{X})$ or the joint distribution $P(Y , X)$. In either case, we introduce a latent variable 
-
-\subsection{Number of Latent Variables}
 
 
 
