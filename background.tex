@@ -2,6 +2,10 @@
 
 In this section, we provide background information on several subjects related to the work in this thesis. This include discussion the formulation of the variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific NMT model considered in the chapter on \ac{LVNMT} models.  
 
+\subsection{Recurrent Neural Networks}
+
+\reminder{talk about the core idea of RNNs}
+
 
 \subsection{Neural Machine Translation}
 
@@ -9,6 +13,7 @@ Neural machine translation refers to neural network models trained specifically 
  A variety of different architectures have been considered in the literature. These include CNN architectures which apply convolutions to generate sequences \reminder{cite sources}, \ac{RNN} architectures \cite{bahdanau2014NMTBYJoint,cho2014GRU}, the Transformer \reminder{cite vaswani}, and many other variations. There are many options for translation systems, but at the core of the most successful models are 
 
 The most prominent architectures generally are \ac{seq2seq} models ~\cite{koehn2017NMT} have emerged as the most prominent architecture in the NMT literature. In seq2seq models, source sentences $X$ are \textit{encoded} as a series of latent representations capturing words in context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $Y$. For our work, we consider both a recurrent neural network (RNN) with \textit{attention} and \textit{Transformer} seq2seq models for our experiments. We briefly introduce each of these next.
+
 
 \section{Variational Autoencoders}
 

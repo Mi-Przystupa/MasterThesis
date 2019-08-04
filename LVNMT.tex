@@ -1,57 +1,168 @@
 \chapter{Latent Variable Neural Machine Translation}
 
+In this chapter we describe the \ac{LVNMT} models we considered as part of our analysis. We begin by describing the underlying \ac{NMT} architecture both of these approaches build off of. We then described a previously proposed discriminative model which models the conditional distribution $p(y \cond{x})$. We follow with discussion on our generative model which models the joint distribution $p(x, y)$. The chapter finishes with shared details applicable for both considered models. Throughout this chapter we will often reference vectors as $R^{n}$ but the dimensions for these vectors are not necessarily the same dimensions. 
 
-In this section, we attempt to more generally classify latent variable neural machine translation. The two main considerations we have seen in the literature are the type of distribution to model, and the number of latent variables. 
 
-We note that latent variables have also been considered in formulations that may not lend themselves to the framework as discussed here. An example of this is the work of \reminder{cite that paper that uses a latent variable to pick a decoder} where the latent variable is used to pick a decoder. 
+\section{Neural Architecture}
 
-\reminder{ structure it MORE around the choices you make}
-\reminder{section discriminative model}
+In this section we explain the base neural architecture which our considered \ac{LVNMT} models build from. We chose this architecture in order to limit the number of manipulated parameters in our analysis, but this does not mean other architectures are incompatible in \ac{LVNMT} systems. The ideas in each \ac{LVNMT} model considered are applicable to alternative neural architectures, such as the Transformer \cite{vaswani2017attentionTransformer}, which may benefit from introduced latent variables as well. 
 
-\reminder{blah blah blah, discriminative model}
-\reminder{mention how THEY do it, vs how WE do it}
-\reminder{also mention formulation YOU consider}
+The \ac{NMT} architecture we consider is a \ac{seq2seq} model proposed by the work of  \citet{bahdanau2014NMTBYJoint}. The core components include source \& target word embeddings, an encoder, attention mechanism, and decoder. We describe all the layers except the word embeddings which are projections of the vocabulary for each language into a continuous space $R^{n}$. When we refer  words $x_{i}$ or $y_{i}$ these actually correspond to each words associated word embedding as inputs to the model.  
 
-\reminder{section generataive formulation}
-\reminder{blah blah blah, we use this base model}
-\reminder{architecture if it's different...hopefully not}
+\subsection{Encoder}
+The encoder is a bi-directional \ac{RNN} which generates hidden states from reading the source sequence $x$ both forwards and backwards. Formally, the \ac{RNN} produces forward hidden states $h^{f}_{i} \in R^{n}$ for each input word $x_{i}$, where $h^{f}_{i}$ is conditioned on all previous $x_{<i}$ words. The sequence is then read backwards by the \ac{RNN} to produce hidden states $h^{b}_{i} \in R^{n}$ for each word $x_{i}$ where each $h^{b}_{i}$ is conditioned on all subsequent words in the sentence $x_{>i}$. The final hidden states are a concatenation of these complementary embeddings $h_{i}  = [h^{f}_{i} ; h^{b}_{i}]$ $ \forall i \in [0,...,T]$ where $T$ is the sentence length. Intuitively, each $h_{i}$ can be viewed as a contextual embedding of each source word in the sentence. This information improves the translation quality beyond simply initializing the decoder through the attention mechanism, described next. 
 
-\section{Choice of Distribution}
+\subsection{Global Attention}
 
-When we speak of the choice of distribution to represent, the two choices are either the discriminative distribution $P(Y \cond{X})$ or the joint distribution $P(Y , X)$. In either scenario, a latent variable $z$ is introduced into the distribution and should be marginalized out during the translation process. 
-
-With a discriminative \ac{LVNMT}, this additional distribution is included in the following way. 
-
+Global attention mechanisms, in the context of \ac{seq2seq} models, generally refer to combining information from all the encoder hidden states to inform the decoding process. The idea is to introduce some function on the current decoder state $s_{j}$ and encoder states $H \in R^{T \times n}$ to output a vector $\alpha \in R^{T}$. In the work of \citet{bahdanau2014NMTBYJoint} the authors propose a \ac{MLP} attention function which which produces the corresponding energy $e_{i}$ associated with each hidden state in relation to the current decoding step.
 \begin{equation}
-p(Y \cond{X})  = \int p(y \cond{x,z}) p(z \cond{x}) dz
+e_{i} = MLP(h_{j}, s_{j}),
 \end{equation}
 
-This formulation was the first formulation considered in the literature \ac{LVNMT} \cite{Zhang2016VNMT}. Typically, the assumption is that the integral is intractable, which is where a variational approach is used to approximate it by introducing a variational distribution and instead optimizing the \ac{ELBO}. This formulation is the typical modeling assumption in regular \ac{NMT}. 
 
-A more general framework is modeling instead the generative, or joint, distribution $p(X,Y,z)$ which has been found to work better in several previous works \cite{harshil2018GNMT,eikema2018AEVNMT}. Even without the introduced latent variable authors found minute improvements compared to the discriminative formulation \cite{eikema2018AEVNMT}. One of the advantages of this formulation is it allows several ways different ways to formulate the distribution under certain independency assumptions. In the literature, the most successful one has been the following.
+These energy values correspond to the weight associated with each hidden state. They are usually normalized to provide weights $\alpha_{i}$ per hidden state. Bahdanau achieve this with a softmax. 
 
 \begin{equation}
-P(X, Y, z) = \int P(Y \cond{X, z}) P(X \cond{z}) P(z) dz	
+	\alpha_{i} = \frac{exp(e_{i})}{\sum_{i=1}^{T} exp(e'_{i}})
 \end{equation}
-
-In this context, $z$ can be interpreted as a share representation agnostic to the language of choice. \footnote{The linguist term for this is a "Lingua franca"} This representation comes with certain disadvantages which we shall discuss later, but with this model there poses additional future work opportunities by itself. 
-
-
-\section{Number of Latent Variables}
-Up until now, most of discussion of \ac{LVNMT} as implicitly assumed a single global latent variable, but this does not have to be the case. 
-
-To our knowledge, this has only been explored in the context of discriminative models.
+These then produce context vector $c_{j]}$ as follows. 
 \begin{equation}
-P(Y \cond{X, z_{1}, ..., z_{T}}) = \int \prod_{t=1}^{T} P(y_{t} \cond{x_{t}, z_{t}})
+c_{j} = \sum_{1}^{T} \alpha_{i} * h_{i}
 \end{equation}
-Some of the motivations for this largely are to improve the latent representation encoded at each time step, or diversify translations.
+The intuition for $c_{j}$ is that it captures alignment information between the source sequence and the current position in the translation sequence. % It should be noted that previous work as shown the attention alignment becomes less informative for longer sequence \reminder{cite this}. 
 
-\section{Specifying the Variational Distribution}
+ 
 
-The one other consideration in \ac{LVNMT} literature is the choice of the variational distribution, or \textit{inference} model. to mitigate the issue of intractable integration. In the \ac{ELBO} it is conceivable to choose any variational distribution that conditions on varying combinations of the source $X$ and target $Y$ sentences. 
 
-In some of the literature, authors choose to variational distribution on both $X$ and $Y$. In this context, the assumption is that the variational distribution represents a \textit{semantic} global variable, although this is just inferred from the conditioning of the distribution. This particular choice can cause issues at decode time as it assumes the availability of target $Y$ for translation. 
 
-Another choice is to instead condition only on one or the other sentences. We have seen this approach taken in sequential latent variable \ac{LVNMT} models where the author use it as a form of regularization. These models follow  the variational \ac{RNN} idea of optimization instead. 
 
-\section{The Neural Machine Translation Architecture}
+\subsection{Decoder}
+
+
+The decoder is a feed-forward \ac{RNN} which encodes information to generate the information for translation. It reads the sequence forward producing hidden states $s_{j} \in R^{n}$ for each target word $y_{j}$ in the sequence of length $K$. In the literature, it can be viewed as a conditional language model \cite{koehn2017NMT} whose hidden state is initialize as $s_{0} = tanh(affine(h_{0})$. As a reminder, the encoder is a bidirectional \ac{RNN}. As a reminder, the encoder is a bidrectionl \ac{RNN}, and so the transformation is necessary to project the hidden state into the same vector dimensions as the decoder. The decoder has three inputs which include the previous word $y_{j-1}$, the previous hidden state $s_{j-1}$ and the context vector $c_{j}$ as mentioned in our discussion on the global attention mechanism. 
+
+To generate the probabilities for each word in the target sentence, the decoder includes a final affine layer which produces the probability distribution over the vocabularly as follows.
+\begin{equation}
+p(y_{j} \cond{x, y_{<j}}) = gen(s_{j}, y_{j-1}, c_{j})
+\end{equation}
+It is responsible for generating each word $y_{j}$ in the sequence from information produced by the decoder. It can be viewed as the distribution parameters of the conditional the previous words $y_{<j}$ and whole sentence $x$.
+
+
+\section{Discriminative Translation Model}
+
+
+The discriminative \ac{LVNMT} model we considered was proposed in the work of \citet{Zhang2016VNMT}. This was the first model proposing incorporating latent variables in \ac{NMT} and follows the generally modeling assumption by most \ac{NMT} system ($p(y \cond{x})$.  Their model takes the following form to include a latent variable $z$. 
+
+\begin{equation}
+p(y \cond{x})  = \int p(y \cond{x,z}) p(z \cond{x}) dz
+\end{equation}
+
+In the above equation, as previously discussed, the integral over latent variable $z$ is considered intractable because of the inclusion of neural networks to approximate the distribution. In usual circumstances, this requires introducing a variational approximation $q(z \cond{\cdot})$ to maximize the \ac{ELBO}. %We note that there are works that consider instead variables per time-step as well \cite{schulz2018StochasticDecoder,Su2018VRNMT}, although we do not consider them for our analysis.
+
+In the work of \citet{Zhang2016VNMT}, the authors propose optimizing the following objective. 
+
+\begin{equation}
+E_{p_{\theta}(z \cond{x})}[log p_{\theta}(y \cond{x,z})] +  KL (q_{\phi}(z \cond{x, y} || p_{\theta}(z \cond{x})))
+\end{equation}
+
+This is quite similar to the \ac{ELBO}, but with the minor discrepancy that the reconstruction term is with samples from the prior distribution. 
+However, with a simple observation, the discriminative model we have presented can be rewritten as an expectation with respect to the distribution $p(z \cond{x})$.
+
+\begin{equation}
+p(Y \cond{X})  = \int p(y \cond{x,z}) p(z \cond{x}) dz = E_{p(z \cond{x})}[p(y \cond{x,z})]
+\end{equation}
+
+
+
+This allows one to directly derive a lower bound of the log-likelihood with Jensen's inequality for the discriminative model. 
+
+\begin{equation}
+log P(Y \cond{X}) \geq E_{p(z \cond{x})}[log p(y \cond{x,z})]
+\end{equation}
+
+In this simpler model, we can directly approximate the expectations with Monte Carlo integration by sampleing from the prior $p(z \cond{X})$. This can be accomplished for any chosen distribution where the reparameterization trick can be applied. As our work focuses more so on introducing normalizing flows, we choose the diagonal Gaussian as is typical in \ac{VAE} style models. 
+
+The above model is quite similar to the actual approach of \citet{Zhang2016VNMT}, but they include $KL (q_{\phi}(z \cond{x, y} || p_{\theta}(z \cond{x})))$ as a regularization term. Intuitively the idea is for the prior to encode information from both languages.  This can easily be incorporated in the bound above because the KL divergence is either 0 when optimal (in which case both distributions match) or positive.  \footnote{When we looked at their code we verified that this was how they actually did it} 
+%Particularly as both distributions are parametrized, the distributions are quite likely to match each other in order to minimize the divergence term.
+
+
+We also consider the alternative more familiar ELBO in which the samples are generated by the variational distribution instead of the prior distribution, which is still parametrized. 
+
+\begin{equation}
+E_{q_{\phi}(z \cond{x, y})}  log[p(y \cond{x, z} ) ] - KL (q_{\phi}(z \cond{x, y} || p_{\theta}(z \cond{x})))
+\end{equation}
+
+This still deviates from typical \ac{VAE} models seen in the literature, as the prior is a parametrized distribution $p_{\theta}(z \cond{x})$. Often, it is chosen to be a stationary distribution such as $N(0, diag(\sigma^{2})$ in the diagonal Gaussian case. This raises a potential issue with this model for some particular use cases with \ac{VAE} style models. 
+
+As the prior is parametrized, it is likely during optimization that $q$ and $p$ will quickly converge towards each other to minimize the \ac{ELBO}. For both models, this could potentially cause degeneracy in the latent space, because the distributions are not anchored to a fixed target. This means the model can push each datum's latent distributions apart in order to maximize the reconstruction. Particularly in the first model we mention, the variance of the latent distributions would likely converge to point estimates which would minimize errors during reconstruction. In other setting such as latent disentanglement, or interpolation between latent codes these would be unacceptable artifacts of our modelling choices. 
+
+However, in \ac{LVNMT} this is not necessarily as important, because we are interested in improving translation quality and the performance of these models on translation specific issues and comes with several benefits. As the prior distribution is parameterizes, this mitigates the need to have the target sentence during translation, which otherwise would be a problem.  This representation provides an interesting consideration as well when training \ac{VAE} models with autoregressive models known as "posterior collapse" which we discuss in chapter 4 when detailing considerations for incorporating normalizing flows. 
+
+\subsection{Practical Details for Implementation}
+
+In order to represent both the prior $p(z \cond{x})$ and variational distribution $q(z \cond{x, y})$, we need to introduce additional layers into our \ac{NMT} architecture. To represent each distribution, we include affine layers that amortizes the generation of the distribution parameters for each translation pair. For both models, the inputs to this affine layer is the output of a mean pool operation over the length of the sequence
+
+\begin{equation}
+	h_{mean} = \frac{1}{T} \sum_{i=1}^{T} h_{i}
+\end{equation}
+
+As the  posterior distribution conditions on both source and target sentences, we encode the target sentence $y$ as well during training. For the posterior, the input is then the concatenation of $h_{mean}^y$ and $h_{mean}^X$ . The outputs of the affine layer are passed to respective distributions layers $\mu(affine(h_{mean}))$ and $\sigma(\text{softplus} (affine(h_{mean})))$ which represent the sufficient statistics for a Gaussian distribution. The samples from these distributions are then included as additional inputs to the decoder at each timestep in the decoding process
+\begin{equation}
+	y_{j} = decoder(s_{j-1}, y_{j-1}, c_{j-1}, z))
+\end{equation}
+
+
+
+
+\section{Generative Translation Model}
+
+In our generative model, the latent variable is included in the joint distribution which, again, is required to be marginalized out.
+
+\begin{equation}
+	p(x, y) = \int p(Y \cond{X, z})  p(X \cond{z}) p(z) dz
+\end{equation}
+
+The joint distribution allows more flexibility as it can be factorized in several alternatives distributions from the above. We chose this particular one because previous works have found it to work the best \cite{eikema2018AEVNMT,harshil2018GNMT}. 
+
+In this model the prior $p(z)$ is modelled explicitly as shared information between the source and target languages. This can help with translation as it allows capturing latent shared information which can mitigate the affects of domain mismatch in translation \cite{eikema2018AEVNMT}. The model also allows for capturing missing information which can arise in noisy translation \cite{harshil2018GNMT}. 
+
+
+
+
+
+Likewise for the discriminative model, we represent the distributions with affine layers and follow the same proceedure as above.
+
+\subsection{Neural Language Model}
+
+The above model comes with additional necessary modules for the translation system. This include a langauge model for the the distribution $P(X \cond{z})$. In this setting, the hidden state of the \ac{RNN} is initialized with the latent variable $z$. This varies from our discriminative model which concatenated the latent variable with each input. The choice of incorporation may vary performance, but previous research has found no notable differences on how the latent variable is included \cite{bowman2015GeneratingSent}. 
+
+\subsection{Neural Translation Model}
+
+The Neural translation model is predominantly the same as in the discriminative translation model with the exception of latent variable $z$ 
+initializes the encoder network hidden state. The rest of the model otherwise follows the same proceedure as described in our \ac{NMT} section. 
+\subsection{Variational Distributions} 
+
+We again introduce a variational distribution $q( z\cond{x, y})$ to arrive at an ELBO similar to the one seen in our discriminative model, but without the parametrized prior. One difficulty with this model is that the prior $p(z)$ is not parametrized as in the variational model we specified. This means that the previous solution of replacing the variational distribution with the prior is not-applicable. As such, in order to generate a translation in our model, we would require the target sentence translation before conducting the translation. 
+
+We follow the work of \citet{eikema2018AEVNMT} who considered several surrogate variational distributions which are trained to produce parameters that are the same as the $q(z \cond{x, y})$ by adding an additional divergence term between the two distribution. 
+
+\begin{equation}
+\text{ELBO} + KL( q_{\lambda} (z \cond{x} || q_{\phi}(z \cond{x, y})))
+\end{equation}
+
+The motivation is similar as in the discriminative model scenario where we want our decoding variational distribution to capture the information shared between both languages. As both distributions are parametrized and from the same variational family this additional KL term can more likely achieve the minimal amount of divergence where both distributions match each other. 
+
+\subsection{Addressing Conditioning Problem}
+
+As our variational distribution is conditioned on the both source and target sentences, we reach a problem at test time. How do we condition our variational distribution for decoding? This raises a pertinent concern as otherwise we would require the target sentence before having translated. We consider the the work of \cite{eikema2018AEVNMT} again in this, choosing to introduce a variational distribution which models an additional variational distribution during inference. Specifically, we introduce a KL term and additional variational distribution $r_{\lambda}$ into the objective. The motivation is to encourage a distribution to produce latent variables similar to having both pairs in the language translation. 
+
+
+
+\reminder{Another idea: share the variational encoder parameters, and during training mask out either the source or target sentence. This could also be a sort of extension to bidirectional training where the language model can be treated as an biproduct translation system. }
+
+%In this section, we attempt to more generally classify latent variable neural machine translation. The two main considerations we have seen in the literature are the type of distribution to model, and the number of latent variables. 
+
+%We note that latent variables have also been considered in formulations that may not lend themselves to the framework as discussed here. An example of this is the work of \reminder{cite that paper that uses a latent variable to pick a decoder} where the latent variable is used to pick a decoder. 
+
+
+

@@ -5,6 +5,7 @@ In this chapter we discuss the implementation details for the \ac{LVNMT} models 
 
 In this section we discuss incorporating normalizing flows into latent variable neural machine translation. We also discuss some challenges with incorporating normalizing flows based on the effect they have on the ELBO. 
 
+
 \subsection{Applying Flows to Latent Variables}
 It is relatively easy to incorporate normalizing flows into existing LVNMT models. During the training procedure, one only needs to apply $k$ functions $f_{i}$ sequentially to samples from the base distribution $p(z_{0})$: 
 
@@ -13,6 +14,11 @@ z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_
 \end{equation}
 
 Here, $\circ$ is a shorthand for nested calls of the functions ($f_{2}(f_{1}(f_{0}(z_{0})))$). For our experiments, the base distribution $p(z_{0})$ refers to our variational distribution $q_{\phi}(\textbf{z} \cond{\textbf{x}, \textbf{y}})$ and at decode time we use $p_{\theta}(\textbf{z} \cond{\textbf{x}})$ which is the same approach taken by \citet{Zhang2016VNMT}. For deterministic decoding, we set $z_{0} = \mu_{\theta}(x)$ where $\mu_{\theta}$ is produced by our parameterized prior distribution, and apply normalizing flows on this fixed value instead of samples from $p_{\theta}(z_{0} \cond{x})$
+
+\subsection{Affine Transforms of z}
+
+One observation we had of several \ac{LVNMT} we considered for our analysis was the introduction of affine transformation on the samples $z$ before passing them to the associated networks \cite{eikema2018AEVNMT,Zhang2016VNMT}. Interestingly, these networks could be viewed as normalizing flows if the inverse jacobian had been incorporated into the loss function. For our analysis, we consider scenarios where these affine transforms are removed as well as with the transforms included. When the affine layers are included, they are applied to the samples after the flows have been applied. 
+
 
 \subsection{Challenges with Optimization}
 
