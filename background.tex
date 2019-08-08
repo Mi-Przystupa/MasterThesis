@@ -1,18 +1,43 @@
 \chapter{Background}
 
-In this section, we provide background information on several subjects related to the work in this thesis. This include discussion the formulation of the variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific NMT model considered in the chapter on \ac{LVNMT} models.  
+In this section, we provide background information on several subjects related to the work in this thesis. This includes discussion variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific \ac{NMT} model considered in the chapter on \ac{LVNMT} models.  
 
-\subsection{Recurrent Neural Networks}
-
-\reminder{talk about the core idea of RNNs}
 
 
 \subsection{Neural Machine Translation}
 
-Neural machine translation refers to neural network models trained specifically for the trask of machine translation. The best of these models are currently the \textit{de-facto} approach in machine translation research providing \ac{SOTA} performance on a number of benchmark language pair data sets.
- A variety of different architectures have been considered in the literature. These include CNN architectures which apply convolutions to generate sequences \reminder{cite sources}, \ac{RNN} architectures \cite{bahdanau2014NMTBYJoint,cho2014GRU}, the Transformer \reminder{cite vaswani}, and many other variations. There are many options for translation systems, but at the core of the most successful models are 
+In \ac{SMT}, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system. In recent years, \ac{NMT} systems have achieve \ac{SOTA} results across a variety of language pairs over alternative approaches in \ac{SMT} literature \reminder{cite, cite, cite}. In the most general framework, the objective is to maximize the log-likelihood of the observed sequences 
+\begin{equation}
+	max_{\theta} \log p_{\theta}(y \cond{x})  = \sum_{i=1}^{T} \log p(y_{i} \cond{x, y_{<i}})
+\end{equation}\
 
-The most prominent architectures generally are \ac{seq2seq} models ~\cite{koehn2017NMT} have emerged as the most prominent architecture in the NMT literature. In seq2seq models, source sentences $X$ are \textit{encoded} as a series of latent representations capturing words in context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $Y$. For our work, we consider both a recurrent neural network (RNN) with \textit{attention} and \textit{Transformer} seq2seq models for our experiments. We briefly introduce each of these next.
+Here, $\theta$ represents the parameters of the chosen \ac{NMT} architecture, which is optimized typically with stochastic gradient descent methods. 
+
+There are a variety of hyperparameter choices when building an \ac{NMT} system, but one core components of many \ac{SOTA} systems include auto-regressive neural networks. In these neural networks, each step of the translation process conditions on the output of the previous output. One classification of such networks is the \ac{RNN} in which an internal hidden representation is maintained. This can be viewed as the \textit{memory} of the neural network to encode information as the sequence is predicted. In the above objective, this hidden state enables the interpretation of conditioning the curren prediction $y_{i}$ on the source input and previous words is interpreted in the distribution $p(y_{i} \cond{x, y_{<i}})$. 
+
+As their are several types of \ac{RNN}s, we focus our discussion specifically towards \ac{GRU} which represent one type of \ac{RNN} \cite{cho2014GRU}. The network can be described with the following equations
+\begin{equation}
+	z_{t} = \text{sigmoid}(W_{z}[x_{t}; h_{t-1} ] ) %x_{t} + U_{z} h_{t-1} + b_{z})
+\end{equation}
+
+\begin{equation} 
+	r_{t} = \text{sigmoid}(W_{r} [x_{t}; h_{t-1}] )  \circ h_{t-1}%(W_{r} + U_{r} h_{t-1} + b_{r}) 
+\end{equation}
+
+\begin{equation}
+	h_{t} = (1 - z_{t}) \circ h_{t-1} + z_{t} \circ (W_{h} [x_{t}; r_{t} ]) % \text{tanh} (W_{h}x_{t} + U_{h} (r{t} \circ h_{t-1}) + b_{h}) 
+\end{equation}
+
+Here $W_{z}, W_{r}, W_{h}$ represent the learned weight matrices which include can include a bias term. For brevity $[a ; b]$ is a concatentation of the input vectors, as an equivalent view is a weight matrice per input. Intuitively, the \ac{GRU} works as a soft logic gate where the update gate $z$ controls the relevance of the previous and current state in the memory of the network. The reset gate $r$ decides the actual important of the previous information in conjunction with the new input. 
+
+Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally follow the \ac{seq2seq} framework. In seq2seq models, the source sentences $X$ are \textit{encoded} as a series of latent representations capturing words in context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $Y$. These hidden states are used 
+
+
+The one other major consideration for \ac{NMT} is picking the best translation. A naive solution is to take the most likely word at each step of decoding. This can lead to the \textbf{garden-path problem} in which case the most likely words at the current time step lead to a series of unlikely words later in translation. Instead, typically \textit{beam search} is employed to maintain $n$ possible beams (translation hypotheses) \cite{koehn2017NMT}. At each step, after committing to the top $n$ beams  in the previous time step, a score function is calculated and the top $n$ new beams are selected. The score function is the partial probability of up to the current time step $i$, $\prod p(x_1{}$. When a beam encounters an end-of-sentence token, it is held out and the number of active beams is reduced. Once all beams are in-active, the best translation is then chosen from the remaining beams based on their probability normalized by length $p(y_{1}, ..., y_{n}) / n$. 
+
+\reminder{You should talk about beam search / decoding choices}
+
+
 
 
 \section{Variational Autoencoders}
