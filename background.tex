@@ -52,7 +52,8 @@ P(X) = \int P(X \cond{z}) P(z) dz
 
 Unfortunately, this integral is generally considered to be intractable, because of the incorporation of neural networks to handle the amortization of parameters in the model. This could be addressed by Monte Carlo sampling from $p(z)$, but the latent variable is unknown and the posterior $p(z \cond{X})$ is also difficult to calculate. 
 
-Instead, variational inference is employed to learn an approximation to the true posterior $p(z \cond{X})$. This means introducing a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously.  Including this distribution then leads instead to maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $P(X, z)$ and $q(z \cond{X})$. 
+\reminder{discuss how VI goes inference into optimization problem}
+Instead, \ac{VI} is employed to learn an approximation to the true posterior $p(z \cond{X})$. This means introducing a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously.  Including this distribution then leads instead to maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $P(X, z)$ and $q(z \cond{X})$. 
 
 \begin{equation}
 	log p_{\theta}(x) \geq \E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
@@ -92,13 +93,15 @@ log p_{\theta}(x) \geq \E_{p_{\epsilon} } [ log(P_{\theta}(X \cond{f_{\phi}(\mu,
 
 \section{Normalizing Flows}
 
+Normalizing flows are an application of the change of variables theorem in machine learning. They introduce a series of  $k$ invertible functions $f$ which transform a base distribution $p(z_{0})$ into another distribution $p(z_{k})$. 
+\begin{equation}
+P(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
+\end{equation} 
+where $\circ$ is shorthand for the nested calls for functions $f_{i}$. One motivation for including normalizing flows is enriching the achievable posterior distributions in \ac{VI}, particularly in the case where it lies outsides of the base distribution family. 
+
 As previously mentioned, normalizing flows are invertible functions which transform probability distributions with a change of variables formula.
 
-\begin{equation}
-	P(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
-\end{equation} 
-
-where $\circ$ is shorthand for the nested calls for functions $f_{i}$. Generally we are concerned with the log-likelihood of a distribution, and so we arrive at the following formulation
+ Generally we are concerned with the log-likelihood of a distribution, and so we arrive at the following formulation
 
 
 \reminder{It's blanking on me how to we come about this but we end up with the following}
@@ -128,36 +131,28 @@ This approach is quite useful as it eliminates the need for the variational dist
 
 
 
-\subsection{Types of Normalizing Flows}
+%\subsection{Types of Normalizing Flows}
 
-There are several different types of flows models. We discuss several classes of these models, but note to the reader that this does not represent an exhaustive list of existing flows models as normalizing flows are an active area of research and alternative groups may exist. 
+%There are several different types of flows models. We discuss several classes of these models, but note to the reader that this does not represent an exhaustive list of existing flows models as normalizing flows are an active area of research and alternative groups may exist. 
 
-\subsubsection{Autoregressive Models}
-Autoregressive Flows models are models that structure the transformations such that a diagonal Jacobina matrix can be constructed. This formulation means the determinant can be calculated linearly as the determinant of diagonal matrices is just the product of the diagonal terms $\prod_{0}^{n} \sigma_{i}$. This is accomplished by making each dimension of the transformed distribution $z$ depend on the subsequent entries.
-
-
-
-\begin{equation}
-	 z_{i} = a + b * z_{i-1}		
-\end{equation}
-
-\subsubsection{Non-volume Presevering Flow Models} 
-These are models that can be shown to have the determinant equal to one. 
-
-\subsection{Ordinary Differential Equation Flows}
-
-I'm not as familiar with these, but basically your flows is an ordinary differential equation. 
-
-\subsubsection{Analytically Formulated Determinant Flow Models}
-This is our own classification, but several otherwise "unclassified" flows models follow this formulation. In these types of Normalizing flows,
+%\subsubsection{Autoregressive Models}
+%Autoregressive Flows models are models that structure the transformations such that a diagonal Jacobina matrix can be constructed. This formulation means the determinant can be calculated linearly as the determinant of diagonal matrices is just the product of the diagonal terms $\prod_{0}^{n} \sigma_{i}$. This is accomplished by making each dimension of the transformed distribution $z$ depend on the subsequent entries.
 
 
-\reminder{Misc things I'm not quite sure where to put yet...}
-As previously mentioned, \ac{LVNMT} has been an active area of research in recent years. The original discriminative model was proposed by \citet{Zhang2016VNMT} who found it to improved general translation and gave better translations on longer sequences. This model was then extended by the work of \citet{Su2018VRNMT} to sequential variational \ac{RNN}s providing again better longer sentence translations. An alternative formulation of the variational distribution was proposed by \citet{schulz2018StochasticDecoder} where the emphasis was on diversifying translations. In the generative modeling approach the idea was proposed by the works of \citet{harshil2018GNMT} which enabled word imputation translation as well as a form of unsupervised translation in the \ac{LVNMT} framework. Concurrently, \citet{eikema2018AEVNMT} found the generative formulation to be marginally better than the discriminative model without the latent variable and showed these models could be slightly more robust to domain mismatch. 
 
-To our knowledge, the applications of normalizing flows have been considered sparsely in natural language processing, and largely focused on language modeling. \citet{bowman2015GeneratingSent} briefly mention normalizing flows in the context of variational auto-regressive language modeling, but did not report their empirical findings. \citet{ziegler2019LatentNFforDiscrete} provides empirical evidence on applying normalizing flows for character level language modeling. They proposed several non-autoregressive models that allow for parallel decoding, and provided evidence on the multi-modal behaviors of language factors. In this work, we focus on autoregressive approaches applied to neural machine translations.
+%\begin{equation}
+%	 z_{i} = a + b * z_{i-1}		
+%\end{equation}
 
-Specific to research on developing normalizing flow functions, there has been recent work developing discrete normalizing flows. \cite{tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows} propose similar flows that allow direct application of normalizing flows on discrete distributions. \reminder{read these papers and give the gist of them here}. \reminder{They do this by incorporating modulus mathematics and some something functions on top of this}.
+%\subsubsection{Non-volume Presevering Flow Models} 
+%These are models that can be shown to have the determinant equal to one. 
+
+%\subsection{Ordinary Differential Equation Flows}
+
+%I'm not as familiar with these, but basically your flows is an ordinary differential equation. 
+
+%\subsubsection{Analytically Formulated Determinant Flow Models}
+%This is our own classification, but several otherwise "unclassified" flows models follow this formulation. In these types of Normalizing flows,
 
 
 
