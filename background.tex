@@ -1,6 +1,6 @@
 \chapter{Background}
 
-In this section, we provide background information on several subjects related to the work in this thesis. This includes discussion variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific \ac{NMT} model considered in the chapter on \ac{LVNMT} models.  
+In this section, we provide background information on several subjects related to the work in this thesis. This includes discussion on variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific \ac{NMT} model considered in the chapter on \ac{LVNMT} models.  
 
 
 
@@ -52,8 +52,7 @@ P(X) = \int P(X \cond{z}) P(z) dz
 
 Unfortunately, this integral is generally considered to be intractable, because of the incorporation of neural networks to handle the amortization of parameters in the model. This could be addressed by Monte Carlo sampling from $p(z)$, but the latent variable is unknown and the posterior $p(z \cond{X})$ is also difficult to calculate. 
 
-\reminder{discuss how VI goes inference into optimization problem}
-Instead, \ac{VI} is employed to learn an approximation to the true posterior $p(z \cond{X})$. This means introducing a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously.  Including this distribution then leads instead to maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $P(X, z)$ and $q(z \cond{X})$. 
+Instead, \ac{VI} is employed to convert the inference problem to an optimization problem by learning an approximation to the true posterior $p(z \cond{X})$. This means introducing a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously.  Including this distribution then leads instead to maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $P(X, z)$ and $q(z \cond{X})$. 
 
 \begin{equation}
 	log p_{\theta}(x) \geq \E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
@@ -71,7 +70,7 @@ f_{\phi}(x)(\mu, \sigma, \epsilon) = \mu_{\phi}(x) + \epsilon \circ \sigma_{\phi
 With this, the expectation in the \ac{ELBO} can be rewritten with respect to the $P(\epsilon)$ and can easily be sampled from and enables end-to-end optimization. 
 
 \begin{equation}
-log p_{\theta}(x) \geq \E_{p_{\epsilon} } [ log(P_{\theta}(X \cond{f_{\phi}(\mu, \sigma, \epsilon)}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
+log p_{\theta}(x) \geq \E_{p(\epsilon) } [ log(P_{\theta}(X \cond{f_{\phi}(\mu, \sigma, \epsilon)}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
 \end{equation}
 
 
@@ -93,41 +92,41 @@ log p_{\theta}(x) \geq \E_{p_{\epsilon} } [ log(P_{\theta}(X \cond{f_{\phi}(\mu,
 
 \section{Normalizing Flows}
 
-Normalizing flows are an application of the change of variables theorem in machine learning. They introduce a series of  $k$ invertible functions $f$ which transform a base distribution $p(z_{0})$ into another distribution $p(z_{k})$. 
+Normalizing flows are an application of the change of variables theorem in machine learning. They introduce a series of  $k$ invertible functions $f_{1:k}$ which transform a base distribution $p(z_{0})$ into another distribution $p(z_{k})$. 
 \begin{equation}
 P(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
 \end{equation} 
-where $\circ$ is shorthand for the nested calls for functions $f_{i}$. One motivation for including normalizing flows is enriching the achievable posterior distributions in \ac{VI}, particularly in the case where it lies outsides of the base distribution family. 
+where $\circ$ is shorthand for the nested calls for functions $f_{i}$. This allows one to transform samples from the base distribution $z_{0}$ to generate samples $z_{k}$, which means the probability of samples $z_{K}$ can be calculated as follows. 
+\begin{equation}
+	z_{K} = q_{0}(z_{0}) \prod_{k=1}^{K} \bigg|det (\frac{\delta f_{i}}{\delta z_{i-1}}) \bigg|
+\end{equation}
+Alternatively, assuming ones flows are already learned, it becomes possible to do density estimation of samples by calling the inverse $f_{i}^{-1}$ on samples $z_{k}$. To our knowledge, there are 2 main ways normalizing flows models are optimized in the literature. 
 
-As previously mentioned, normalizing flows are invertible functions which transform probability distributions with a change of variables formula.
+%There are a number of utilities of normalizing flows which generally involve enriching the posterior distribution. In the \ac{VI} setting this translates to enabling the variational distribution $q$ to capture possible posterior representations beyond those in those achievable with the base distribution. Alternatively, it becomes possible to directly optimize the log-likelihood of the data distribution without the \ac{ELBO} with normalizing flows. 
 
- Generally we are concerned with the log-likelihood of a distribution, and so we arrive at the following formulation
+%\begin{equation}
+%	logP(z_{k}) = log(P(z_{0})) - \sum_{i=1}^{k} log |det (\frac{\delta f_{i}}{\delta z_{i-1}}) |
+%\end{equation}
 
 
-\reminder{It's blanking on me how to we come about this but we end up with the following}
+The first approach incorporates normalizing flows into the \ac{ELBO} which introduce an expectation of the log determinant with respect to the variational distribution.
 
 \begin{equation}
-	logP(z_{k}) = log(P(z_{0})) - \sum_{i=1}^{k} log |det (\frac{\delta f_{i}}{\delta z_{i-1}}) |
+\E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z)) + E_{q(z\cond{X})}\bigg[\sum_{i=1}^{k}log \bigg|(\frac{\delta f_{i}}{\delta z_{i-1}})\bigg|\bigg]
 \end{equation}
+%\begin{equation}
+%E_{p(\epsilon)} [ log P(X, z) - log q( f(\mu, \sigma, eps) \cond{x}) + \sum_{i=1}^{k}log |det (\frac{\delta f_{i}}{\delta %z_{i-1}}) | ]
+%\end{equation}
+Previous works typically employ hypernets \cite{ha2016hypernets} to amortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. In the \ac{VI} setting this enables the variational distribution $q$ to capture possible posterior representations beyond those in those achievable with the base distribution.
 
-The focus of normalizing flows research has been in finding invertible functions $f$ such that the determinant of the Jacobian are computationally efficient as that is the major bottle neck in these types of models. 
-
-To our knowledge, there are 2 main ways normalizing flows models are optimized in the literature. The first approach is to directly include the normalizing flows into the \ac{ELBO} which introduce the log determinant as an extra term into the objective.
-
-\begin{equation}
-E_{p(\epsilon)} [ log P(X, z) - log q( f(\mu, \sigma, eps) \cond{X}) + \sum_{i=1}^{k}log |det (\frac{\delta f_{i}}{\delta z_{i-1}}) | ]
-\end{equation}
-
-In this setting, previous works typically also ammortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. 
-
-An alternative approach, which can be more viewed as more eloquant as it does not optimize a bound like with the \ac{ELBO}, is to instead directly optimize the log probability of the data distribution.
+Alternatively, one can instead optimize the log probability of the data distribution directly with normalizing flows
  
 \begin{equation}
-	logP(X) = log(P(z_{0})) - \sum_{i=1}^{k} |det (\frac{\delta f_{i}}{\delta z_{i-1}}) |
+	\log P(X) = \log P(z_{0}) - \sum_{i=1}^{k} \log \bigg| \frac{\delta f_{i}}{\delta z_{i-1}} \bigg|
 \end{equation}
+This approach is quite useful as it eliminates the need for the variational distribution in \ac{VI}. The choice of flow becomes particularly important though because some flows can be quite slow to do density estimation in order to transform the data distribution samples back to the base distribution. 
 
-This approach is quite useful as it eliminates the need for the variational distribution as previously mentioned in the variational autoencoder. The choice of flow becomes particularly important though because some flows can be quite slow to do density estimation in order to transform the data distribution samples back to the base distribution. 
-
+The predominant focus of normalizing flows research has been on defining invertible functions which have computationally efficient Jacobians. This had lead to a variety of classifications of flows such as autoregressive flows which lead to triangular matrices \cite{kingma2016IAF, papamakarios2017MAF}; analytic Jacobian flows \cite{rezende2015VIwithNF,vdberg2018sylvester}, or volume preseverving flows which have the Jacobian equal to one \cite{tomczak2016Householder,tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows}.
 
 
 

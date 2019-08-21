@@ -1,26 +1,73 @@
 \chapter{Normalizing Flows in Machine Translation}
 
-In this chapter we discuss the implementation details for the \ac{LVNMT} models we consider for analysis. Along with this includes several design choices we made based on related research and our own findings in the preliminary experiments section. 
+%In this chapter we discuss the implementation details for the \ac{LVNMT} models we consider for analysis. Along with this includes several design choices we made based on related research and our own findings in the preliminary experiments section. 
+
+In this chapter we discuss incorporating normalizing flows into \ac{LVNMT} systems. This includes the specific normalizing flows we considered, as well as the challenges with incorporating normalizing flows due to problems with the \ac{ELBO}, particularly with auto-regressive models like those we considered.
+
+\section{Applying Flows to Latent Variables}
 
 
-In this section we discuss incorporating normalizing flows into latent variable neural machine translation. We also discuss some challenges with incorporating normalizing flows based on the effect they have on the ELBO. 
-
-
-\subsection{Applying Flows to Latent Variables}
 It is relatively easy to incorporate normalizing flows into existing LVNMT models. During the training procedure, one only needs to apply $k$ functions $f_{i}$ sequentially to samples from the base distribution $p(z_{0})$: 
 
 \begin{equation}
 z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
 \end{equation}
 
-Here, $\circ$ is a shorthand for nested calls of the functions ($f_{2}(f_{1}(f_{0}(z_{0})))$). For our experiments, the base distribution $p(z_{0})$ refers to our variational distribution $q_{\phi}(\textbf{z} \cond{\textbf{x}, \textbf{y}})$ and at decode time we use $p_{\theta}(\textbf{z} \cond{\textbf{x}})$ which is the same approach taken by \citet{Zhang2016VNMT}. For deterministic decoding, we set $z_{0} = \mu_{\theta}(x)$ where $\mu_{\theta}$ is produced by our parameterized prior distribution, and apply normalizing flows on this fixed value instead of samples from $p_{\theta}(z_{0} \cond{x})$
+For our experiments, the base distribution $p(z_{0})$ refers to our variational distribution $q_{\phi}(\textbf{z} \cond{\textbf{x}, \textbf{y}})$ and at decode time we use $p_{\theta}(\textbf{z} \cond{\textbf{x}})$ which is the same approach taken by \citet{Zhang2016VNMT}. For deterministic decoding, we set $z_{0} = \mu_{\theta}(x)$ where $\mu_{\theta}$ is produced by our parameterized prior distribution, and apply normalizing flows on this fixed value instead of samples from $p_{\theta}(z_{0} \cond{x})$
 
 \subsection{Affine Transforms of z}
 
 One observation we had of several \ac{LVNMT} we considered for our analysis was the introduction of affine transformation on the samples $z$ before passing them to the associated networks \cite{eikema2018AEVNMT,Zhang2016VNMT}. Interestingly, these networks could be viewed as normalizing flows if the inverse jacobian had been incorporated into the loss function. For our analysis, we consider scenarios where these affine transforms are removed as well as with the transforms included. When the affine layers are included, they are applied to the samples after the flows have been applied. 
 
+\section{Considered Flows for Analysis}
 
-\subsection{Challenges with Optimization}
+There are a variety of flows considered in the literature. For analysis we consider a small subset which have been proposed in the \ac{VAE} scenario. Each represent a different approach calculating the inverse of the Jacobian offering alternative influences on the training proceedure for our \ac{LVNMT} architectures. 
+
+\subsection{Planar Flows}
+
+Planar flows were proposed in the work of \citet{rezende2015VIwithNF} and are functions of the following form
+\begin{equation}
+	f_{i}(z) = z + u_{i} h(w_{i}^{T} z + b_{i})
+\end{equation}
+$u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, and $h$ is a non-linear activation. For our experiments we use \textit{tanh} but the authors note that alternative activations are permissible. A convenient aspect of these flows is they provide an analytical term of the Jacobian
+\begin{equation}
+	\det \bigg( \frac{\delta f}{\delta z} \bigg) = \bigg| 1 + u^{t} h'(w_{i}^{T} z + b_{i})w \bigg|
+\end{equation} 
+Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single line in space.  Due to this behavior, they require many layers to represent complicated distributions. In the experiments of \citet{rezende2015VIwithNF} they required at least 32 flows before accurately recovering the posterior distributions. As these flows can be viewed as layers in a \ac{MLP} \cite{kingma2016IAF}, this aspect can make them less practical compared to other flows. 
+
+\reminder{not sure if it's worth mentioning next part..}
+
+Another drawback with planar flows is that their inverse is not guaranteed. \citet{rezende2015VIwithNF} propose a way to define the parameters such that the flows are invertible, but it still remains challenging to invert planar flows. This can be due to numerical instability in the activation function, which when inverted can lead to a non-existent value, or require numerical solvers to find a solution. Despite these potential pitfalls, they are a fairly simple transformation to control the important of manipulating latent samples. 
+
+
+
+\subsection{Sylvester Flows}
+
+Sylvester flows refers to a class of normalizing flows which utilize \textit{Sylvester's determinant identity} to define the Jacobian \cite{vdberg2018sylvester}. In the general case, they take the following form
+\begin{equation}
+	f_{i}(z) = z + A_{i} h(B_{i}z + b_{i})
+\end{equation}
+where $A_{i} \in R^{D \times M}$, $B_{i} \in R^{M \times D}$, $b_{i} \in R^{m}$, and $h$ is a non-linear activation. These types of flows can be viewed as a generalization of planar flows which transform a sample along several dimensions instead of a single one. Likewise, Sylvester flows determinant take a similar analytic form
+\begin{equation} 
+	\det \bigg( \frac{\delta f}{\delta z} \bigg) = \bigg| I_{M} + \text{diag} ( h'(B_{i}^{T} z ) + b_{i})B_{i}A_{i} \bigg|
+\end{equation}
+As in the planar flow scenario, the previously shown equations are not generally invertible. To guarantee invertibility, the authors define the learn-able parameters, as upper triangular matrices $R, \tilde{R} \in R^{M \times M}$, and orthonormal matrix $Q \in R^{D \times M}$ choosing to define $A_{i} = QR$ and $B=\tilde{R}Q^{T}$. In this framework, the authors proposed several variants to define $Q$. For our experiments we consider the Householder Sylvester Flow which defines Q with the House holder transformation.
+\begin{equation}
+	Q(z) = z - 2 \frac{vv^{T}}{||v||^{2}} z
+\end{equation}
+For further details on other considered variants, we refer readers to \citet{vdberg2018sylvester}. 
+
+\subsection{House Holder Flows}
+
+
+
+\subsection{Inverse Autoregressive Flows}
+
+\reminder{section flows you chose}
+
+
+
+\section{Challenges with Optimization}
 
 The one other consideration with the inclusion of normalizing flows is how they change the ELBO. Here we present a formulation of the ELBO specific to machine translation which is based on the derivation from \citealp[Section 4.2]{rezende2015VIwithNF}.
 
@@ -43,6 +90,9 @@ The problem with this objective is that the inclusion of this KL divergence can 
 
 For this work, we address this potential problem with a previously proposed approach referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE}. KL-annealing is the process of annealing the weight associated to the divergence term in the ELBO from 0.0 (no influence) to 1.0 (original weight). We follow previous research by using a linear annealing schedule to update the weight of our regularization terms after each mini-batch update until it reaches 1.0 and the original ELBO objective is optimized for the remaining duration of training. 
 
-\reminder{section flows you chose}
+
+\subsection{To Amortize or Not}
+
+A subtle point in flows literature is how the parameters of the flows are learned. In a \ac{VAE} style set-up, it is possible to data conditioned flow parameters or treat the parameters as directly learnable. It has previously been cited that data conditioned flow parameters can produce better performance that data agnostic flows \cite{vdberg2018sylvester}. An advantage of an agnostic, or global, interpretation of flows is that this allows easier interpolation between latent samples between data points, which is one of the motivations for \ac{VAE} style models. 
 
 \reminder{talk about ammorization of flow parameters}
