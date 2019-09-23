@@ -1,3 +1,49 @@
+@article{gregor2015MADE,
+	author    = {Mathieu Germain and
+	Karol Gregor and
+	Iain Murray and
+	Hugo Larochelle},
+	title     = {{MADE:} Masked Autoencoder for Distribution Estimation},
+	journal   = {CoRR},
+	volume    = {abs/1502.03509},
+	year      = {2015},
+	url       = {http://arxiv.org/abs/1502.03509},
+	archivePrefix = {arXiv},
+	eprint    = {1502.03509},
+	timestamp = {Mon, 13 Aug 2018 16:46:39 +0200},
+	biburl    = {https://dblp.org/rec/bib/journals/corr/GermainGML15},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{tabak2013familyofnonparametricdensity,
+	author = {Tabak, E. G. and Turner, Cristina V.},
+	title = {A Family of Nonparametric Density Estimation Algorithms},
+	journal = {Communications on Pure and Applied Mathematics},
+	volume = {66},
+	number = {2},
+	pages = {145-164},
+	doi = {10.1002/cpa.21423},
+	url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/cpa.21423},
+	eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/cpa.21423},
+	abstract = {Abstract A new methodology for density estimation is proposed. The methodology, which builds on the one developed by Tabak and Vanden-Eijnden, normalizes the data points through the composition of simple maps. The parameters of each map are determined through the maximization of a local quadratic approximation to the log-likelihood. Various candidates for the elementary maps of each step are proposed; criteria for choosing one includes robustness, computational simplicity, and good behavior in high-dimensional settings. A good choice is that of localized radial expansions, which depend on a single parameter: all the complexity of arbitrary, possibly convoluted probability densities can be built through the composition of such simple maps. © 2012 Wiley Periodicals, Inc.},
+	year = {2013}
+}
+
+@article{tabak2010densityestimationdual,
+	title = "Density estimation by dual ascent of the log-likelihood",
+	abstract = "A methodology is developed to assign, from an observed sample, a joint-probability distribution to a set of continuous variables. The algorithm proposed performs this assignment by mapping the original variables onto a jointly-Gaussian set. The map is built iteratively, ascending the log-likelihood of the observations, through a series of steps that move the marginal distributions along a random set of orthogonal directions towards normality.",
+	keywords = "Density estimation, Machine learning, Maximum likelihood",
+	author = "Esteban Tabak and {Vanden Eijnden}, Eric",
+	year = "2010",
+	language = "English (US)",
+	volume = "8",
+	pages = "217--233",
+	journal = "Communications in Mathematical Sciences",
+	issn = "1539-6746",
+	publisher = "International Press of Boston, Inc.",
+	number = "1",
+}
+
 @incollection{papamakarios2017MAF,
 	title = {Masked Autoregressive Flow for Density Estimation},
 	author = {Papamakarios, George and Pavlakou, Theo and Murray, Iain},
@@ -664,4 +710,22 @@
 	author={van den Berg, Rianne and Hasenclever, Leonard and Tomczak, Jakub and Welling, Max},
 	booktitle={proceedings of the Conference on Uncertainty in Artificial Intelligence (UAI)},
 	year={2018}
+}
+
+@InProceedings{goodfellow2013maxout,
+	title = 	 {Maxout Networks},
+	author = 	 {Ian Goodfellow and David Warde-Farley and Mehdi Mirza and Aaron Courville and Yoshua Bengio},
+	booktitle = 	 {Proceedings of the 30th International Conference on Machine Learning},
+	pages = 	 {1319--1327},
+	year = 	 {2013},
+	editor = 	 {Sanjoy Dasgupta and David McAllester},
+	volume = 	 {28},
+	number =       {3},
+	series = 	 {Proceedings of Machine Learning Research},
+	address = 	 {Atlanta, Georgia, USA},
+	month = 	 {17--19 Jun},
+	publisher = 	 {PMLR},
+	pdf = 	 {http://proceedings.mlr.press/v28/goodfellow13.pdf},
+	url = 	 {http://proceedings.mlr.press/v28/goodfellow13.html},
+	abstract = 	 {We consider the problem of designing models to leverage a recently introduced approximate model averaging technique called dropout. We define a simple new model called maxout (so named because its output is the max of a set of inputs, and because it is a natural companion to dropout) designed to both facilitate optimization by dropout and improve the accuracy of dropout's fast approximate model averaging technique. We empirically verify that the model successfully accomplishes both of these tasks. We use maxout and dropout to demonstrate state of the art classification performance on four benchmark datasets: MNIST, CIFAR-10, CIFAR-100, and SVHN.}
 }

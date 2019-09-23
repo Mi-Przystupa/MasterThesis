@@ -19,6 +19,12 @@ For our experiments, the base distribution $p(z_{0})$ refers to our variational 
 
 One observation we had of several \ac{LVNMT} we considered for our analysis was the introduction of affine transformation on the samples $z$ before passing them to the associated networks \cite{eikema2018AEVNMT,Zhang2016VNMT}. Interestingly, these networks could be viewed as normalizing flows if the inverse jacobian had been incorporated into the loss function. For our analysis, we consider scenarios where these affine transforms are removed as well as with the transforms included. When the affine layers are included, they are applied to the samples after the flows have been applied. 
 
+\subsection{To Amortize or Not}
+
+A subtle point in flows literature is how the parameters of the flows are learned. In a \ac{VAE} style set-up, it is possible to data conditioned flow parameters or treat the parameters as directly learnable. It has previously been cited that data conditioned flow parameters can produce better performance that data agnostic flows \cite{vdberg2018sylvester}. An advantage of an agnostic, or global, interpretation of flows is that this allows easier interpolation between latent samples between data points, which is one of the motivations for \ac{VAE} style models. 
+
+\reminder{talk about ammorization of flow parameters}
+
 \section{Considered Flows for Analysis}
 
 There are a variety of flows considered in the literature. For analysis we consider a small subset which have been proposed in the \ac{VAE} scenario. Each represent a different approach calculating the inverse of the Jacobian offering alternative influences on the training proceedure for our \ac{LVNMT} architectures. 
@@ -33,11 +39,12 @@ $u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, an
 \begin{equation}
 	\det \bigg( \frac{\delta f}{\delta z} \bigg) = \bigg| 1 + u^{t} h'(w_{i}^{T} z + b_{i})w \bigg|
 \end{equation} 
-Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single line in space.  Due to this behavior, they require many layers to represent complicated distributions. In the experiments of \citet{rezende2015VIwithNF} they required at least 32 flows before accurately recovering the posterior distributions. As these flows can be viewed as layers in a \ac{MLP} \cite{kingma2016IAF}, this aspect can make them less practical compared to other flows. 
+Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single line in space.  Due to this behavior, they require many layers to represent complicated distributions. %In the experiments of \citet{rezende2015VIwithNF} they required at least 32 flows before accurately recovering the posterior distributions.
+As these flows can be viewed as layers in a \ac{MLP} \cite{kingma2016IAF}, this aspect can make them less practical compared to other flows. 
 
 \reminder{not sure if it's worth mentioning next part..}
 
-Another drawback with planar flows is that their inverse is not guaranteed. \citet{rezende2015VIwithNF} propose a way to define the parameters such that the flows are invertible, but it still remains challenging to invert planar flows. This can be due to numerical instability in the activation function, which when inverted can lead to a non-existent value, or require numerical solvers to find a solution. Despite these potential pitfalls, they are a fairly simple transformation to control the important of manipulating latent samples. 
+Another drawback with planar flows is that their inverse is not guaranteed. \citet{rezende2015VIwithNF} propose a way to define the parameters such that the flows are invertible, but it still remains challenging to invert planar flows. This can be due to numerical instability in the activation function, which when inverted can lead to a non-existent value, or require numerical solvers to find a solution. Despite these potential pitfalls, they are a fairly simple transformation to compare the importance of more complex distributions for \ac{LVNMT}
 
 
 
@@ -59,13 +66,30 @@ For further details on other considered variants, we refer readers to \citet{vdb
 
 \subsection{House Holder Flows}
 
+House holder flows refers specifically applying the House Holder matrix as a normalizing flow \cite{tomczak2016Householder}. This flow again make use of the previously discussed house holder transformation where the parameters are the vector $v$. In the work of \citet{tomczak2016Householder} the authors apply the observation that decomposing a full covariance matrix into it's orthogonal eigenvalue and eigenvector components one can use the eigenvector components as a series of transformed Gaussian distributions. Through the \textit{Basis-Kernel Representation of othorgonal matrices} theorem, this enables the application of House holder matrices, which are orthogonal, as normalizing flows. 
+
+In these flows, the parameter vectors $v$ are each conditioned on the previous flow parameters, with the exception of $v_{0}$ which is the hidden layer from a neural network. In the context of VAEs this refers specifically to the penultimate layer of the variational network $q_{\phi}(z \cond{x})$
 
 
 \subsection{Inverse Autoregressive Flows}
 
-\reminder{section flows you chose}
+Inverse autoregessive flows are from the work of \citet{kingma2016IAF}. They are a type of autoregressive model which allow for parallel sampling by defining the function as the inverse operation in a sequence of random variablels
+\begin{equation}
+	\epsilon_{i} = \frac{y_{i} - \sigma}{\mu}
+\end{equation}
 
+where $y_{i}$ is the dimensions of the variable of interest. This definition provides a lower triangular Jacobian matrix which means the Jacobian is just a product of the diagonal terms
+\begin{equation}
+	\bigg| \log \frac{\delta f}{\delta z_{t -1 } } \bigg| = \prod_{t=0}^{T} \sigma_{t}
+\end{equation}
 
+The inverse is then defined as sequentially dependent which make these flows computationally expensive for density estimation. 
+
+\begin{equation}
+	y_{i} = \mu + \sigma * \epsilon_{<i}
+\end{equation}
+
+In the authors work they use autoregressive MADE \cite{gregor2015MADE} and generate a context $h$ which each flow conditions on in addition to other inputs. 
 
 \section{Challenges with Optimization}
 
@@ -89,10 +113,3 @@ The problem with this objective is that the inclusion of this KL divergence can 
  
 
 For this work, we address this potential problem with a previously proposed approach referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE}. KL-annealing is the process of annealing the weight associated to the divergence term in the ELBO from 0.0 (no influence) to 1.0 (original weight). We follow previous research by using a linear annealing schedule to update the weight of our regularization terms after each mini-batch update until it reaches 1.0 and the original ELBO objective is optimized for the remaining duration of training. 
-
-
-\subsection{To Amortize or Not}
-
-A subtle point in flows literature is how the parameters of the flows are learned. In a \ac{VAE} style set-up, it is possible to data conditioned flow parameters or treat the parameters as directly learnable. It has previously been cited that data conditioned flow parameters can produce better performance that data agnostic flows \cite{vdberg2018sylvester}. An advantage of an agnostic, or global, interpretation of flows is that this allows easier interpolation between latent samples between data points, which is one of the motivations for \ac{VAE} style models. 
-
-\reminder{talk about ammorization of flow parameters}

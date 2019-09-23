@@ -1,21 +1,20 @@
 \chapter{Background}
 
-In this section, we provide background information on several subjects related to the work in this thesis. This includes discussion on variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where we give further details in the specific \ac{NMT} model considered in the chapter on \ac{LVNMT} models.  
+In this section, we provide background information on several subjects related to the work in this thesis. These include discussions on variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where further details specific to this work are provided in chapter 2 on \ac{LVNMT} models.  
 
 
 
 \subsection{Neural Machine Translation}
 
-In \ac{SMT}, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system. In recent years, \ac{NMT} systems have achieve \ac{SOTA} results across a variety of language pairs over alternative approaches in \ac{SMT} literature \reminder{cite, cite, cite}. In the most general framework, the objective is to maximize the log-likelihood of the observed sequences 
+In \ac{SMT}, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system. \ac{NMT} systems have achieve \ac{SOTA} results across a variety of language pairs over alternative approaches in \ac{SMT} literature \cite{bahdanau2014NMTBYJoint,koehn2017NMT,vaswani2017attentionTransformer}. For human understanding, the goal is to correctly translate from source language $x$ (e.g. English) to target language $y$ (e.g. German) such that the sentence is coherent and captures the meaning of the source sentence. Defining this as an optimization  objective is a difficult problem. Instead, \ac{NMT} systems learn to maximize the log-likelihood of the conditional distribution $p(y\cond(x))$. 
 \begin{equation}
 	max_{\theta} \log p_{\theta}(y \cond{x})  = \sum_{i=1}^{T} \log p(y_{i} \cond{x, y_{<i}})
-\end{equation}\
+\end{equation}
+Here, $\theta$ represents the parameters of the \ac{NMT} model. 
 
-Here, $\theta$ represents the parameters of the chosen \ac{NMT} architecture, which is optimized typically with stochastic gradient descent methods. 
+There are a variety of hyperparameter choices when building an \ac{NMT} system, but one core component of many \ac{SOTA} systems include auto-regressive neural networks which condition on the previous output of the network for data which have sequential relations. One classification of such networks is the \ac{RNN} in which an internal hidden representation is maintained which can viewed as the networks \textit{memory} of a sequence. In the above objective, this hidden state generally is interpreted as allowing the system to condition on the whole source sentence $x$ and all previous target words $y_{<i}$.
 
-There are a variety of hyperparameter choices when building an \ac{NMT} system, but one core components of many \ac{SOTA} systems include auto-regressive neural networks. In these neural networks, each step of the translation process conditions on the output of the previous output. One classification of such networks is the \ac{RNN} in which an internal hidden representation is maintained. This can be viewed as the \textit{memory} of the neural network to encode information as the sequence is predicted. In the above objective, this hidden state enables the interpretation of conditioning the curren prediction $y_{i}$ on the source input and previous words is interpreted in the distribution $p(y_{i} \cond{x, y_{<i}})$. 
-
-As their are several types of \ac{RNN}s, we focus our discussion specifically towards \ac{GRU} which represent one type of \ac{RNN} \cite{cho2014GRU}. The network can be described with the following equations
+As their are several types of \ac{RNN}s, we only describes the \ac{GRU} which was the chosen \ac{RNN} in this work \cite{cho2014GRU}. The network can be described with the following equations
 \begin{equation}
 	z_{t} = \text{sigmoid}(W_{z}[x_{t}; h_{t-1} ] ) %x_{t} + U_{z} h_{t-1} + b_{z})
 \end{equation}
@@ -28,12 +27,12 @@ As their are several types of \ac{RNN}s, we focus our discussion specifically to
 	h_{t} = (1 - z_{t}) \circ h_{t-1} + z_{t} \circ (W_{h} [x_{t}; r_{t} ]) % \text{tanh} (W_{h}x_{t} + U_{h} (r{t} \circ h_{t-1}) + b_{h}) 
 \end{equation}
 
-Here $W_{z}, W_{r}, W_{h}$ represent the learned weight matrices which include can include a bias term. For brevity $[a ; b]$ is a concatentation of the input vectors, as an equivalent view is a weight matrice per input. Intuitively, the \ac{GRU} works as a soft logic gate where the update gate $z$ controls the relevance of the previous and current state in the memory of the network. The reset gate $r$ decides the actual important of the previous information in conjunction with the new input. 
+Here $W_{z}, W_{r}, W_{h}$ represent the learned weight matrices which can include a bias term.  $[a ; b]$ refers to a concatenation operation, and $\circ$ is the element-wise product. Intuitively, the \ac{GRU} works as a soft logic gate where the update gate $z$ controls the relevance of previous and current state in the memory of the network. The reset gate $r$ decides the importance of previous information in conjunction with the new input. 
 
-Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally follow the \ac{seq2seq} framework. In seq2seq models, the source sentences $X$ are \textit{encoded} as a series of latent representations capturing words in context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $Y$. These hidden states are used 
+Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally follow the \ac{seq2seq} framework. In seq2seq models, the source sentences $x$ are \textit{encoded} as a series of latent representations capturing words-in-context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $y$. 
 
 
-The one other major consideration for \ac{NMT} is picking the best translation. A naive solution is to take the most likely word at each step of decoding. This can lead to the \textbf{garden-path problem} in which case the most likely words at the current time step lead to a series of unlikely words later in translation. Instead, typically \textit{beam search} is employed to maintain $n$ possible beams (translation hypotheses) \cite{koehn2017NMT}. At each step, after committing to the top $n$ beams  in the previous time step, a score function is calculated and the top $n$ new beams are selected. The score function is the partial probability of up to the current time step $i$, $\prod p(x_1{}$. When a beam encounters an end-of-sentence token, it is held out and the number of active beams is reduced. Once all beams are in-active, the best translation is then chosen from the remaining beams based on their probability normalized by length $p(y_{1}, ..., y_{n}) / n$. 
+The one other major consideration for \ac{NMT} is picking the best translation. A naive solution is to take the most likely word at each step of decoding. This can lead to the \textit{garden-path problem} in which case the most likely words at the current time step lead to a series of unlikely words later in translation \cite{koehn2017NMT}. Instead, typically \textit{beam search} is employed to maintain $n$ possible beams (translation hypotheses) \cite{koehn2017NMT}. At each step, after committing to the top $n$ beams  in the previous time step, a score function is calculated and the top $n$ new beams are selected. The score function is the partial probability of up to the current time step $i$, $\prod^{T}_{i=1} p(x_{i} | x_{<i})$. When a beam encounters an end-of-sentence token, or designated maximum length, it is held out and the number of active beams is reduced. Once all beams are in-active, the best translation is then chosen from the remaining beams based on their probability normalized by length $\frac{p(y_{1}, ..., y_{n})}{n}$. 
 
 
 
@@ -41,36 +40,36 @@ The one other major consideration for \ac{NMT} is picking the best translation. 
 
 \section{Variational Autoencoders}
 
-\ac{VAE} are a class of generative models that model the joint distribution $P(X, z)$, where $X$ is the data set and $z$ is an introduced random variable. The joint distribution is factorized typically in the following form $P(X, z) = P(X\cond{z})P(z)$. This can be interpreted as assuming the dataset $X$ was generated by some latent process represented as a random variable $z$. 
+The \ac{VAE} is a class of generative model which represent the joint distribution $P(X, z)$, where $X$ is the data set and $z$ is an introduced random variable. The joint distribution is factorized typically in the following form $P(X, z) = P(X\cond{z})P(z)$. This is interpreted as assuming the dataset $X$ was generated by latent process  $z$. 
 
-An important aspect of \ac{VAE}s is amortized inference, which involves introducing functions $f(x)$ that produce distribution parameters per datum. The motivation for employing amortized inference is that this limits the need to learn per datum distribution parameters which could otherwise require much more computation to learn. In \ac{VAE}s this function is typically some neural network. Throughout this paper when we describe any distribution as $p_{\theta}(\cdot)$, the chosen greek symbol (as it will vary beyond $\theta$) represent the parameters of the neural network which represent the distribution parameters of $p(\cdot)$. 
+An important aspect of \ac{VAE}s is amortized inference, which involves introducing functions $f(x)$ that produce distribution parameters per datum. The motivation for employing amortized inference is eliminating the need to learn per datum distribution parameters which otherwise require much more computation to learn. In \ac{VAE}s this function is typically some neural network. Throughout this paper when we describe any distribution as $p_{\theta}(\cdot)$, the chosen greek symbol (as it will vary beyond $\theta$) represent the parameters of neural networks which handle amortization of $p(\cdot)$. 
 
 In order to learn a good representation of $p(X,z)$ the objective is to maximize the log-likelihood of the marginal distribution p(X). To calculate $p(X)$ one then would need to integrate out the random variable $z$
 \begin{equation}
-P(X) = \int P(X \cond{z}) P(z) dz
+\log P(X) = \log \int P(X \cond{z}) P(z) dz
 \end{equation}
 
-Unfortunately, this integral is generally considered to be intractable, because of the incorporation of neural networks to handle the amortization of parameters in the model. This could be addressed by Monte Carlo sampling from $p(z)$, but the latent variable is unknown and the posterior $p(z \cond{X})$ is also difficult to calculate. 
+Unfortunately, this integral is generally considered intractable, because of the incorporation of neural networks to handle the amortization of distribution parameters. This could be addressed by Monte Carlo sampling from $p(z)$, but the latent variable is unknown and the posterior $p(z \cond{X})$ is also difficult to calculate. 
 
-Instead, \ac{VI} is employed to convert the inference problem to an optimization problem by learning an approximation to the true posterior $p(z \cond{X})$. This means introducing a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously.  Including this distribution then leads instead to maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $P(X, z)$ and $q(z \cond{X})$. 
+Instead, researchers employ \ac{VI} to solve this problem with optimization by learning an approximation to the true posterior $p(z \cond{X})$. This introduces a variational distribution $q_{\phi}(z \cond{X})$, parametrized by some neural network $\phi$, which will be optimized along with our model. This can be interpreted as introducing an inference network which performs the amortization of the prior parameters $p(z)$ as discussed previously. The objective in \ac{VI} then involves maximizing the \ac{ELBO}, or variational free energy, on the joint distribution $p(X, z)$ and $q(z \cond{X})$. 
 
 \begin{equation}
 	log p_{\theta}(x) \geq \E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
 \end{equation}
 
-An important thing to note in the above equation is that the prior $p(z)$ is typically chosen to be stationary. This means the \ac{ELBO} can be interpreted as optimizing two conflicting objectives. The expectation term seeks to maximize the reconstruction of the data from $z$ where as the second term bounds the variational distribution to stay within some latent space.
+An important thing to note in the above equation is that the prior $p(z)$ is typically chosen to be stationary. This means the \ac{ELBO} can be interpreted as optimizing two conflicting objectives. The expectation term seeks to maximize the reconstruction of data from $z$ where as the second term bounds the variational distribution to stay within some latent space.
 
-Despite this conflict we have gained some important properties. As the KL divergence is non-negative, and only 0 when the distributions match it is possible to recover the true log likelihood of the data. We can also sample from $q(z \cond{X})$ to approximate the expectation term which was not possible before.
+Despite this conflict we have gained some important properties. As the KL divergence is non-negative, and only 0 when the distributions match, it is theoretically possible to recover the true log likelihood of the data. We can also sample from $q_{\phi}(z \cond{X})$ to approximate the expectation term which was not possible before.
 
-Unfortunately, as we would incorporate gradient based optimization, directly sampling $q(z \cond{X})$ introduces a discrete operation during our network optimization. This means we can not directly calculate gradients through this operation. One approach to mitigate this is the re-parametrization trick \cite{kingma2014autoencodingVB,rezende2014stochasticBackprop} in which the variational distribution  is rewritten as a function and sampling is done from some surrogate distribution. Here, we show this approach for the isotropic Gaussian with mean vector $\mu$ and variance $\sigma$
+Unfortunately, directly sampling $q_{\phi}(z \cond{X})$ introduces a discrete operation which means we can not calculate gradients end-to-end in the model. One approach to mitigate this is the re-parametrization trick \cite{kingma2014autoencodingVB,rezende2014stochasticBackprop} in which the variational distribution  is rewritten as a function and sampling is done from some surrogate distribution. Here, we show this approach for the isotropic Gaussian with mean $\mu$ and variance $\sigma$ conditioned on $x$
 \begin{equation}
-f_{\phi}(x)(\mu, \sigma, \epsilon) = \mu_{\phi}(x) + \epsilon \circ \sigma_{\phi}(x), \epsilon \sim N(0, 1)
+f_{\phi}(x, \epsilon) = \mu_{\phi}(x) + \epsilon \circ \sigma_{\phi}(x), \epsilon \sim N(0, 1)
 \end{equation}
 
-With this, the expectation in the \ac{ELBO} can be rewritten with respect to the $P(\epsilon)$ and can easily be sampled from and enables end-to-end optimization. 
+With this, the expectation in the \ac{ELBO} can be rewritten with respect to $p(\epsilon)$ and enables end-to-end optimization. 
 
 \begin{equation}
-log p_{\theta}(x) \geq \E_{p(\epsilon) } [ log(P_{\theta}(X \cond{f_{\phi}(\mu, \sigma, \epsilon)}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
+log p_{\theta}(x) \geq \E_{p(\epsilon) } [ log(P_{\theta}(X \cond{f_{\phi}(x, \epsilon)}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
 \end{equation}
 
 
@@ -96,7 +95,7 @@ Normalizing flows are an application of the change of variables theorem in machi
 \begin{equation}
 P(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
 \end{equation} 
-where $\circ$ is shorthand for the nested calls for functions $f_{i}$. This allows one to transform samples from the base distribution $z_{0}$ to generate samples $z_{k}$, which means the probability of samples $z_{K}$ can be calculated as follows. 
+where $\circ$ is shorthand for the nested calls for functions $f_{i}$. This allows one to transform samples from the base distribution $z_{0}$ into samples $z_{k}$
 \begin{equation}
 	z_{K} = q_{0}(z_{0}) \prod_{k=1}^{K} \bigg|det (\frac{\delta f_{i}}{\delta z_{i-1}}) \bigg|
 \end{equation}
@@ -109,24 +108,21 @@ Alternatively, assuming ones flows are already learned, it becomes possible to d
 %\end{equation}
 
 
-The first approach incorporates normalizing flows into the \ac{ELBO} which introduce an expectation of the log determinant with respect to the variational distribution.
+The first approach incorporates normalizing flows into the \ac{ELBO} which introduce an entropy term of the log absolute Jacobian with respect to the variational distribution.
 
 \begin{equation}
-\E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z)) + E_{q(z\cond{X})}\bigg[\sum_{i=1}^{k}log \bigg|(\frac{\delta f_{i}}{\delta z_{i-1}})\bigg|\bigg]
+\E_{q(z \cond{X})} [ log(p_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z)) + E_{q(z\cond{X})}\bigg[\sum_{i=1}^{k}log \bigg|\frac{\delta f_{i}}{\delta z_{i-1}}\bigg|\bigg]
 \end{equation}
-%\begin{equation}
-%E_{p(\epsilon)} [ log P(X, z) - log q( f(\mu, \sigma, eps) \cond{x}) + \sum_{i=1}^{k}log |det (\frac{\delta f_{i}}{\delta %z_{i-1}}) | ]
-%\end{equation}
-Previous works typically employ hypernets \cite{ha2016hypernets} to amortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. In the \ac{VI} setting this enables the variational distribution $q$ to capture possible posterior representations beyond those in those achievable with the base distribution.
+Previous works typically employ hyper-networks \cite{ha2016hypernets} to amortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. In the \ac{VI} setting this enables the variational distribution $q$ to capture possible posterior representations beyond those achievable with the base distribution per datum
 
-Alternatively, one can instead optimize the log probability of the data distribution directly with normalizing flows
+Alternatively, normalizing flows enable direct optimization of the  log probability of  data distribution
  
 \begin{equation}
 	\log P(X) = \log P(z_{0}) - \sum_{i=1}^{k} \log \bigg| \frac{\delta f_{i}}{\delta z_{i-1}} \bigg|
 \end{equation}
-This approach is quite useful as it eliminates the need for the variational distribution in \ac{VI}. The choice of flow becomes particularly important though because some flows can be quite slow to do density estimation in order to transform the data distribution samples back to the base distribution. 
+This approach is quite useful as it eliminates the need for the variational distribution in \ac{VI}. The choice of flow becomes particularly important though because of the dependence on the absolute log Jacobian. %some flows can be quite slow to do density estimation in order to transform the data distribution samples back to the base distribution. 
 
-The predominant focus of normalizing flows research has been on defining invertible functions which have computationally efficient Jacobians. This had lead to a variety of classifications of flows such as autoregressive flows which lead to triangular matrices \cite{kingma2016IAF, papamakarios2017MAF}; analytic Jacobian flows \cite{rezende2015VIwithNF,vdberg2018sylvester}, or volume preseverving flows which have the Jacobian equal to one \cite{tomczak2016Householder,tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows}.
+The predominant focus of normalizing flows research has been on defining invertible functions which have computationally efficient Jacobians. This had lead to a variety of classifications of flows such as autoregressive flows which lead to triangular Jacobians \cite{kingma2016IAF, papamakarios2017MAF}; analytic Jacobian flows \cite{rezende2015VIwithNF,vdberg2018sylvester}, or volume preserving flows which have the Jacobian equal to one \cite{tomczak2016Householder,tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows}. Note that analytical Jacobian flows is not in the literature, nor due these groupings necessarily reflect the full range of approaches to normalizing flows. 
 
 
 
