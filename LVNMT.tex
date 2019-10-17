@@ -46,11 +46,11 @@ To generate the probabilities for each word in the target sentence, the decoder 
 	t_{j} = maxout(affine([y_{j-1}; c_{j}; s_{j} ]))
 \end{equation}
 \begin{equation}
-	t_{j}^{maxout} = [max(t_{2j -1}, t_{2j})]_{i=1}^{l / 2}
+	maxout(t) = [max(t_{2j -1}, t_{2j})]_{i=1}^{l / 2}
 \end{equation}
 %The final affine layer uses these max out values as input to produce the probability distribution over the vocabulary as follows.
 \begin{equation}
-p(y_{j} \cond{x, y_{<j}}) = affine(t_{j}^{maxout})
+p(y_{j} \cond{x, y_{<j}}) = affine(t_{j})
 \end{equation}
 %It is responsible for generating each word $y_{j}$ in the sequence from information produced by the decoder to produced $p(y_{j} \cond(y_{<j}, x))$.
 
@@ -180,7 +180,5 @@ h_{mean} = \frac{1}{T} \sum_{i=1}^{T} h_{i}
 \end{equation}
 
 These $h$ vectors then are passed to layers that amortize the distribution parameters for our latent variables. This includes $\mu(h)$ and $\sigma(h)$. Each of these functions introduce an additional affine layer to produce the parameters. The $\sigma$ function then also includes a softplus non-linearity in order to preserve the positive definite behavior of the distribution variance. These outputs represent the parameters for an isotropic Gaussian which is our chosen base distribution. In both models the posterior distribution is the concatenation of $[h_{mean}^{x} ; h_{mean}^{y}]$. For the prior in our discriminative model this is simply $h_{mean}^{x}$.
-
-
 
 
