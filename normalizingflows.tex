@@ -2,25 +2,25 @@
 
 %In this chapter we discuss the implementation details for the \ac{LVNMT} models we consider for analysis. Along with this includes several design choices we made based on related research and our own findings in the preliminary experiments section. 
 
-In this chapter we discuss incorporating normalizing flows into \ac{LVNMT} systems. This includes the specific normalizing flows we considered, as well as the challenges with incorporating normalizing flows, particularly with auto-regressive models like those we considered.
+In this chapter we discuss incorporating normalizing flows into \ac{LVNMT} systems. This includes descriptions of the normalizing flows we considered,and the challenges with incorporating normalizing flows, particularly with auto-regressive models like those we considered.
 
 \section{Applying Flows to Latent Variables}
 
 
-It is relatively easy to incorporate normalizing flows into existing LVNMT models. During the training procedure, one only needs to apply $k$ functions $f_{i}$ sequentially to samples from the base distribution $p(z_{0})$: 
+Incorporating normalizing flows into existing \ac{LVNMT} systems is relatively straight forward. During the training procedure, one only needs to apply $k$ functions $f_{i}$ sequentially to samples from the base distribution $p(z_{0})$: 
 
 \begin{equation}
 z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
 \end{equation}
 
-During training of our \ac{LVNMT} systems, $p(z_{0})$ refers to our variational posterior distribution when training \ac{LVNMT} models with normalizing flows. When evaluating translation quality, we set the the latent variable to the expected value of the Gaussian distribution , $z_{0} = \mu_{\theta}(x)$, and apply our flows to this value.
+$p(z_{0})$ refers to our variational posterior distribution when training \ac{LVNMT} models with normalizing flows. When evaluating translation quality, we set the latent variable to the expected value of the Gaussian distribution , $z_{0} = \mu_{\theta}(x)$, and apply our flows to this value.
 
 %\subsection{Affine Transforms of z}
 
 %One observation we had of several \ac{LVNMT} we considered for our analysis was the introduction of affine transformation on the samples $z$ before passing them to the associated networks \cite{eikema2018AEVNMT,Zhang2016VNMT}. Interestingly, these networks could be viewed as normalizing flows if the inverse jacobian had been incorporated into the loss function. For our analysis, we consider scenarios where these affine transforms are removed as well as with the transforms included. When the affine layers are included, they are applied to the samples after the flows have been applied. 
 \section{Considered Flows for Analysis}
 
-There are a variety of flows considered in the literature. For analysis we consider two types of flows. The Jacobian is different for each flow, offering alternative influences on the training procedure for our \ac{LVNMT} architectures. 
+There are a variety of flows considered in the literature, but for analysis we consider two types of flows. The Jacobian is different for each flow, offering alternative influences on the training procedure for our \ac{LVNMT} architectures. 
 
 \subsection{Planar Flows}
 
@@ -32,7 +32,7 @@ $u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, an
 \begin{equation}
 \det \bigg( \frac{\delta f}{\delta z} \bigg) = \bigg| 1 + u^{t} h'(w_{i}^{T} z + b_{i})w \bigg|
 \end{equation} 
-Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single line in space. This is a simple transformation and requires many planar flows to represent complicated distributions. This need for more flows to effectively transform the distribution space makes them less desirable compared to other flows.  %In the experiments of \citet{rezende2015VIwithNF} they required at least 32 flows before accurately recovering the posterior distributions.
+Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single line in space. This is a simple transformation and requires many planar flows to represent complicated distributions. This need for more flows to effectively transform the distribution space makes them less computationally efficient compared to other flows, but offer a simple type of normalizing flow to evaluated against.  %In the experiments of \citet{rezende2015VIwithNF} they required at least 32 flows before accurately recovering the posterior distributions.
 %As these flows can be viewed as layers in a \ac{MLP} \cite{kingma2016IAF}, this aspect can make them less practical compared to other flows. 
 
 %\reminder{not sure if it's worth mentioning next part..}
@@ -68,10 +68,10 @@ Intuitively, this transformation can be seen as contracting or expanding the sam
 
 Inverse autoregessive flows allow for parallel sampling by defining the function as the inverse operation in a sequence of random variables \citet{kingma2016IAF}
 \begin{equation}
-\epsilon_{i} = \frac{y_{i} - \sigma}{\mu}
+\epsilon_{i} = \frac{z_{i} - \sigma(x)}{\mu(x)}
 \end{equation}
 
-where $y_{i}$ is the dimensions of the variable of interest. This definition provides a lower triangular Jacobian matrix which means the Jacobian is just a product of the diagonal terms
+where $z_{i}$ is the dimensions of the variable of interest. This definition provides a lower triangular Jacobian matrix which means the determinant is just a product of the diagonal terms
 \begin{equation}
 \bigg| \log \frac{\delta f}{\delta z_{t -1 } } \bigg| = \prod_{t=0}^{T} \sigma_{t}
 \end{equation}
@@ -87,7 +87,7 @@ In the authors work they use autoregressive MADE \cite{gregor2015MADE} and gener
 
 \subsection{To Amortize or Not}
 
-ONe consideration when applying normalizing flows is whether to amortize flow parameters or learn them directly. In the amortized setting, the flows parameters are generated by a hyper-network $h$ \cite{ha2016hypernets} which is a neural network that outputs the parameters of the normalizing flow. These data condition parameters enable more flexible per datum distributions. Previous research suggest these data conditioned flows provide better performance compared to data agnostic flows in which the parameters are treated as directly learned parameters \cite{vdberg2018sylvester}.
+One consideration when applying normalizing flows is whether to amortize flow parameters or learn them directly. In the amortized setting, the flows parameters are generated by a \textit{hyper-network} \cite{ha2016hypernets} which is a neural network that outputs the parameters of the normalizing flow. These data condition parameters enable more flexible per datum distributions. Previous research suggest these data conditioned flows provide better performance compared to data agnostic flows in which the parameters are treated as directly learned parameters \cite{vdberg2018sylvester}.
 
 For our experiments, we consider both settings to test whether previously reported performance gains carry over to the translation scenario. When amortizing the flow parameters, our hyper-networks are simply affine layers which condition on the same inputs as our variational distributions. As an example, for a single planar flow this will look like the following 
 \begin{equation}
