@@ -1,35 +1,37 @@
 \chapter{Background}
 
-In this section, we provide background information on several subjects related to the work in this thesis. These include discussions on variational auto-encoders, normalizing flows, and a brief description of \ac{NMT} where further details specific to this work are provided in chapter 2 on \ac{LVNMT} models.  
+In this section, we provide background information on several subjects related to the work in this thesis. These include discussions on variational auto-encoders, normalizing flows, and a general description of \ac{NMT}, although details into the particular \ac{NMT} architecture considered in this work are discussed in Chapter 3 on \ac{LVNMT}. % where more specific to this work are provided in chapter 3 on \ac{LVNMT} models.  
 
 
 
 \subsection{Neural Machine Translation}
 
-In \ac{SMT}, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system. \ac{NMT} systems have achieve \ac{SOTA} results across a variety of language pairs over alternative approaches in \ac{SMT} literature \cite{bahdanau2014NMTBYJoint,koehn2017NMT,vaswani2017attentionTransformer}. For human understanding, the goal is to correctly translate from source language $x$ (e.g. English) to target language $y$ (e.g. German) such that the sentence is coherent and captures the meaning of the source sentence. Defining this as an optimization  objective is a difficult problem. Instead, \ac{NMT} systems learn to maximize the log-likelihood of the conditional distribution $p(y\cond(x))$. 
+Statistical machine translation is a field which applies statistical methods to train computer systems that perform language translation. Historically these methods have typically involved learning phrase tables and language models to perform translation \cite{koehnSMT2010}. These components of the system are learned with statistical methods like expectation maximization by analyzing the \textit{bi-text} to extract relevant phrases and derive their likelihood under the provided bi-text.  In \ac{SMT} literature, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system, although machine learning researchers also are actively studying \ac{NMT} systems. 
+
+\ac{NMT} systems have achieve \ac{SOTA} results across a variety of language pairs over alternative approaches in \ac{SMT} literature \cite{bahdanau2014NMTBYJoint,koehn2017NMT,vaswani2017attentionTransformer}. For human understanding, the goal is to correctly translate from source language $x$ (e.g. English) to target language $y$ (e.g. German) such that the sentence is coherent and captures the meaning of the source sentence. \footnote{There are other criteria for defining quality in translations including things like adequacy, fidelity, and fluency \cite{Papineni2002BLEU}.} Defining this as an optimization  objective is a difficult problem. Instead, similar to historical \ac{SMT} , \ac{NMT} systems learn to maximize the log-likelihood of the conditional distribution $p(y\cond{x})$. 
 \begin{equation}
 	max_{\theta} \log p_{\theta}(y \cond{x})  = \sum_{i=1}^{T} \log p(y_{i} \cond{x, y_{<i}})
 \end{equation}
 Here, $\theta$ represents the parameters of the \ac{NMT} model. 
 
-There are a variety of hyperparameter choices when building an \ac{NMT} system, but one core component of many \ac{SOTA} systems include auto-regressive neural networks which condition on the previous output of the network for data which have sequential relations. One classification of such networks is the \ac{RNN} in which an internal hidden representation is maintained which can viewed as the networks \textit{memory} of a sequence. In the above objective, this hidden state generally is interpreted as allowing the system to condition on the whole source sentence $x$ and all previous target words $y_{<i}$.
+There are a variety of hyperparameter choices when building an \ac{NMT} system, but one core component of many \ac{SOTA} systems include auto-regressive neural networks which condition on the previous output of the network for data which have sequential relations. One category of such networks is the \ac{RNN} in which an internal hidden representation is maintained which can be viewed as the networks \textit{memory} of a sequence \cite{gravessupervisedSequenceRNNbook2012}. In the above objective, this hidden state generally is interpreted as allowing the system to condition on the whole source sentence $x$ and all previous target words $y_{<i}$. Since \ac{RNN}s can suffer from long term dependencies, resulting in gradients either vanishing or exploding, long short term memory cells were proposed in as a means to address this issue \cite{gravessupervisedSequenceRNNbook2012}.
 
-As their are several types of \ac{RNN}s, we only describes the \ac{GRU} which was the chosen \ac{RNN} in this work \cite{cho2014GRU}. The network can be described with the following equations
+As there are several types of \ac{RNN}s, we only describe \ac{GRU}s which was the chosen \ac{RNN} in our current work \cite{cho2014GRU}. The \ac{GRU} can be viewed as a simplification of a long short term memory cell which helps mitigate the effect of gradient exploding or vanishing problem due to long sequence dependencies \cite{gravessupervisedSequenceRNNbook2012}. The network can be described with the following equations
 \begin{equation}
 	z_{t} = \text{sigmoid}(W_{z}[x_{t}; h_{t-1} ] ) %x_{t} + U_{z} h_{t-1} + b_{z})
 \end{equation}
 
 \begin{equation} 
-	r_{t} = \text{sigmoid}(W_{r} [x_{t}; h_{t-1}] )  \circ h_{t-1}%(W_{r} + U_{r} h_{t-1} + b_{r}) 
+	r_{t} = \text{sigmoid}(W_{r} [x_{t}; h_{t-1}] )  \circ h_{t-1}%(W_{r} + U_{r} h_{t-1} + b_{r}) their
 \end{equation}
 
 \begin{equation}
 	h_{t} = (1 - z_{t}) \circ h_{t-1} + z_{t} \circ (W_{h} [x_{t}; r_{t} ]) % \text{tanh} (W_{h}x_{t} + U_{h} (r{t} \circ h_{t-1}) + b_{h}) 
 \end{equation}
 
-Here $W_{z}, W_{r}, W_{h}$ represent the learned weight matrices which can include a bias term.  $[a ; b]$ refers to a concatenation operation, and $\circ$ is the element-wise product. Intuitively, the \ac{GRU} works as a soft logic gate where the update gate $z$ controls the relevance of previous and current state in the memory of the network. The reset gate $r$ decides the importance of previous information in conjunction with the new input. 
+Here $W_{z}, W_{r}, W_{h}$ represent the learned weight matrices which can include a bias term.  $[a ; b]$ refers to a concatenation operation, and $\circ$ is the element-wise product. Intuitively, the \ac{GRU} works as a soft logic gate where the \textit{update gate $z$} controls the 'relevance' of previous and current state in the memory of the network. The \textit{reset gate $r$} decides the importance of previous information in conjunction with the new input. 
 
-Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally follow the \ac{seq2seq} framework. In seq2seq models, the source sentences $x$ are \textit{encoded} as a series of latent representations capturing words-in-context information. A \textit{decoder} utilizes these hidden states, such as for initialization, to help inform the decoding process for target sentences $y$. 
+Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally follow the \ac{seq2seq} framework. In \ac{seq2seq} models, the source sentence $x$ is \textit{encoded} as a series of latent representations capturing words-in-context information. A \textit{decoder} utilizes these hidden states, such as for initialization it's own hidden state, to help inform the decoding process for target sentences $y$. 
 
 
 The one other major consideration for \ac{NMT} is picking the best translation. A naive solution is to take the most likely word at each step of decoding. This can lead to the \textit{garden-path problem} in which case the most likely words at the current time step lead to a series of unlikely words later in translation \cite{koehn2017NMT}. Instead, typically \textit{beam search} is employed to maintain $n$ possible beams (translation hypotheses) \cite{koehn2017NMT}. At each step, after committing to the top $n$ beams  in the previous time step, a score function is calculated and the top $n$ new beams are selected. The score function is the partial probability of up to the current time step $i$, $\prod^{T}_{i=1} p(x_{i} | x_{<i})$. When a beam encounters an end-of-sentence token, or designated maximum length, it is held out and the number of active beams is reduced. Once all beams are in-active, the best translation is then chosen from the remaining beams based on their probability normalized by length $\frac{p(y_{1}, ..., y_{n})}{n}$. 
@@ -57,9 +59,9 @@ Instead, researchers employ \ac{VI} to solve this problem with optimization by l
 	log p_{\theta}(x) \geq \E_{q(z \cond{X})} [ log(P_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z))
 \end{equation}
 
-An important thing to note in the above equation is that the prior $p(z)$ is typically chosen to be stationary. This means the \ac{ELBO} can be interpreted as optimizing two conflicting objectives. The expectation term seeks to maximize the reconstruction of data from $z$ where as the second term bounds the variational distribution to stay within some latent space.
+An important thing to note in the above equation is that the prior $p(z)$ is typically chosen to be stationary. This means the \ac{ELBO} can be interpreted as optimizing two conflicting objectives. The expectation term seeks to maximize the reconstruction of data from $z$ whereas the second term bounds the variational distribution to stay within some latent space.
 
-Despite this conflict we have gained some important properties. As the KL divergence is non-negative, and only 0 when the distributions match, it is theoretically possible to recover the true log likelihood of the data. We can also sample from $q_{\phi}(z \cond{X})$ to approximate the expectation term which was not possible before.
+Despite this conflict we have gained some important properties. As the KL divergence is non-negative, and only 0 when the distributions match (i.e. are identical), it is theoretically possible to recover the true log likelihood of the data. We can also sample from $q_{\phi}(z \cond{X})$ to approximate the expectation term which was not possible before.
 
 Unfortunately, directly sampling $q_{\phi}(z \cond{X})$ introduces a discrete operation which means we can not calculate gradients end-to-end in the model. One approach to mitigate this is the re-parametrization trick \cite{kingma2014autoencodingVB,rezende2014stochasticBackprop} in which the variational distribution  is rewritten as a function and sampling is done from some surrogate distribution. Here, we show this approach for the isotropic Gaussian with mean $\mu$ and variance $\sigma$ conditioned on $x$
 \begin{equation}
@@ -99,7 +101,7 @@ where $\circ$ is shorthand for the nested calls for functions $f_{i}$. This allo
 \begin{equation}
 	z_{K} = q_{0}(z_{0}) \prod_{k=1}^{K} \bigg|det (\frac{\delta f_{i}}{\delta z_{i-1}}) \bigg|
 \end{equation}
-Alternatively, assuming ones flows are already learned, it becomes possible to do density estimation of samples by calling the inverse $f_{i}^{-1}$ on samples $z_{k}$. To our knowledge, there are 2 main ways normalizing flows models are optimized in the literature. 
+Alternatively, it becomes possible to do density estimation of samples by calling the inverse $f_{i}^{-1}$ on samples $z_{k}$. To our knowledge, there are 2 main ways normalizing flows models are optimized in the literature. 
 
 %There are a number of utilities of normalizing flows which generally involve enriching the posterior distribution. In the \ac{VI} setting this translates to enabling the variational distribution $q$ to capture possible posterior representations beyond those in those achievable with the base distribution. Alternatively, it becomes possible to directly optimize the log-likelihood of the data distribution without the \ac{ELBO} with normalizing flows. 
 
@@ -108,21 +110,21 @@ Alternatively, assuming ones flows are already learned, it becomes possible to d
 %\end{equation}
 
 
-The first approach incorporates normalizing flows into the \ac{ELBO} which introduce an entropy term of the log absolute Jacobian with respect to the variational distribution.
+The first approach incorporates normalizing flows into the \ac{ELBO} which introduce an entropy term of the log absolute Jacobian with respect to the variational distribution, as follows:
 
 \begin{equation}
 \E_{q(z \cond{X})} [ log(p_{\theta}(X \cond{z}) ]  - KL(q_{\phi}(z \cond{X}) || p(z)) + E_{q(z\cond{X})}\bigg[\sum_{i=1}^{k}log \bigg|\frac{\delta f_{i}}{\delta z_{i-1}}\bigg|\bigg]
 \end{equation}
-Previous works typically employ hyper-networks \cite{ha2016hypernets} to amortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. In the \ac{VI} setting this enables the variational distribution $q$ to capture possible posterior representations beyond those achievable with the base distribution per datum
+Previous works typically employ hyper-networks \cite{ha2016hypernets} to amortize the parameters of the normalizing flows instead of directly optimizing them  \cite{rezende2015VIwithNF,tomczak2016Householder,vdberg2018sylvester}. In the \ac{VI} setting this enables the variational distribution $q$ to capture possible posterior representations beyond those achievable with the base distribution per datum.
 
-Alternatively, normalizing flows enable direct optimization of the  log probability of  data distribution
+Alternatively, normalizing flows enable direct optimization of the  log probability of  data distribution:
  
 \begin{equation}
 	\log P(X) = \log P(z_{0}) - \sum_{i=1}^{k} \log \bigg| \frac{\delta f_{i}}{\delta z_{i-1}} \bigg|
 \end{equation}
 This approach is quite useful as it eliminates the need for the variational distribution in \ac{VI}. The choice of flow becomes particularly important though because of the dependence on the absolute log Jacobian. %some flows can be quite slow to do density estimation in order to transform the data distribution samples back to the base distribution. 
 
-The predominant focus of normalizing flows research has been on defining invertible functions which have computationally efficient Jacobians. This had lead to a variety of classifications of flows such as autoregressive flows which lead to triangular Jacobians \cite{kingma2016IAF, papamakarios2017MAF}; analytic Jacobian flows \cite{rezende2015VIwithNF,vdberg2018sylvester}, or volume preserving flows which have the Jacobian equal to one \cite{tomczak2016Householder,tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows}. Note that analytical Jacobian flows is not in the literature, nor due these groupings necessarily reflect the full range of approaches to normalizing flows. 
+The predominant focus of normalizing flows research has been on defining invertible functions which have computationally efficient Jacobians. This had lead to a variety of classifications of flows such as autoregressive flows which lead to triangular Jacobians \cite{kingma2016IAF, papamakarios2017MAF}; analytic Jacobian flows \cite{rezende2015VIwithNF,vdberg2018sylvester}, or volume preserving flows which have the Jacobian equal to one \cite{tomczak2016Householder,tran2019discreteflows,hoogeboom2019IntegerDiscreteFlows}. Note that analytical Jacobian flows is not in the literature, nor do these groupings necessarily reflect the full range of approaches to normalizing flows. 
 
 
 
