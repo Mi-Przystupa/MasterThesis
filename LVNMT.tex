@@ -1,20 +1,20 @@
 \chapter{Latent Variable Neural Machine Translation}
 
-In this chapter we describe the \ac{LVNMT} models we considered as part of our analysis. We begin by describing the underlying \ac{NMT} architecture common to both approach. We then described our discriminative model $p(y \cond{x})$, and our generative model $p(x, y)$. The chapter finishes with shared details applicable for both considered models. Throughout this chapter we will often reference vectors as $R^{n}$ but the actual dimensions for these vectors does not mean all the vectors are of the same dimensions. 
+In this chapter we describe the \ac{LVNMT} models we considered as part of our analysis. We begin by describing the underlying \ac{NMT} architecture common to both approaches. We then describe our discriminative model $p(y \cond{x})$, and our generative model $p(x, y)$. The final section discusses the practical details of representing the latent variables and defining the inputs from the appropriate components in each architecture. Throughout this chapter, we will often reference vectors as $\mathbb{R}^{n}$ but the actual dimensions for these vectors does not mean all the vectors are of the same dimensions and will otherwise specify the actual dimension whenever appropriate. 
 
 
 \section{Neural Architecture}
 
-In this section we explain the base neural architecture which our considered \ac{LVNMT} models build from. Inherently there is nothing necessarily unique to this model for incorporating latent variables.  The ideas in each \ac{LVNMT} model considered are applicable to alternative neural architectures, such as the Transformer \cite{vaswani2017attentionTransformer}, which may benefit from introduced latent variables as well. 
+In this section we explain the base neural architecture which our \ac{LVNMT} build from. Inherently, there is nothing necessarily unique to this architecture for incorporating latent variables.  The ideas in each \ac{LVNMT} model considered are applicable to alternative neural architectures, such as the Transformer \cite{vaswani2017attentionTransformer}, which may benefit from introduced latent variables as well. 
 
-The \ac{NMT} architecture we consider is a \ac{seq2seq} model proposed by the work of  \citet{bahdanau2014NMTBYJoint}. The core components include source \& target word embeddings, an encoder, attention mechanism, and decoder. We describe all the layers except the word embeddings which are projections of the vocabulary for each language into a continuous space $R^{n}$. When we refer  words $x_{i}$ or $y_{i}$ these actually correspond to each word's associated word embedding as inputs to the model.  
+The \ac{NMT} architecture we consider is a \ac{seq2seq} model proposed by the work of  \citet{bahdanau2014NMTBYJoint}. The core components include source \& target word embeddings, an encoder, attention mechanism, and decoder. We describe all the layers except the word embeddings which are projections of the vocabulary for each language into a continuous space $\mathbb{R}^{n}$. When we refer words $x_{i}$ or $y_{i}$, these actually correspond to each word's associated word embedding as inputs to the model.  
 
 \subsection{Encoder}
-The encoder is a bi-directional \ac{RNN} which generates hidden states from reading the source sequence $x$ both forwards and backwards. Formally, the \ac{RNN} produces forward hidden states $h^{f}_{i} \in R^{n}$ for each input word $x_{i}$, where $h^{f}_{i}$ is conditioned on all previous $x_{<i}$ words. The sequence is then read backwards by the \ac{RNN} to produce hidden states $h^{b}_{i} \in R^{n}$ for each word $x_{i}$ where each $h^{b}_{i}$ is conditioned on all subsequent words in the sentence $x_{>i}$. The final hidden states are a concatenation of these complementary embeddings $h_{i}  = [h^{f}_{i} ; h^{b}_{i}]$ $ \forall i \in [0,...,T]$ where $T$ is the sentence length. Intuitively, each $h_{i}$ can be viewed as a contextual embedding of each source word in the sentence. This information improves the translation quality beyond initializing the decoder through the attention mechanism, described next. 
+The encoder is a bi-directional \ac{RNN} which generates hidden states from reading the source sequence $x$ both forwards and backwards. Formally, the \ac{RNN} produces forward hidden states $h^{f}_{i} \in \mathbb{R}^{n}$ for each input word $x_{i}$, where $h^{f}_{i}$ is conditioned on all previous $x_{<i}$ words through $h_{i-1}^{f}$, and previous word embedding. The sequence is then read backwards by the \ac{RNN} to produce hidden states $h^{b}_{i} \in \mathbb{R}^{n}$ for each word $x_{i}$ where each $h^{b}_{i}$ is conditioned on all subsequent words in the sentence $x_{>i}$. The final hidden states are a concatenation of these complementary embeddings $h_{i}  = [h^{f}_{i} ; h^{b}_{i}]$ $ \forall i \in [0,...,T]$ where $T$ is the sentence length. Intuitively, each $h_{i}$ can be viewed as a contextual embedding of each source word in the sentence. These embeddings are utilized in the decoder via the \textit{Global Attention} mechanism, described next. %This information improves the translation quality beyond initializing the decoder through the attention mechanism, described next. 
 
 \subsection{Global Attention}
 
-Global attention mechanisms, in the context of \ac{seq2seq} models, generally refer to combining information from all the encoder hidden states to inform the decoding process. This is achieved by a function of the current decoder state $s_{j}$ and encoder states $H \in R^{T \times n}$ to output an energy vector $e \in R^{T}$. In the work of \citet{bahdanau2014NMTBYJoint} the authors propose a \ac{MLP} attention function
+Global attention mechanisms, in the context of \ac{seq2seq} models, generally refer to combining information from all the encoder hidden states to inform the decoding process. This is achieved by a function of the current decoder state $s_{j}$ and encoder states $H \in \mathbb{R}^{T \times n}$ to output an energy vector $e \in \mathbb{R}^{T}$. In the work of \citet{bahdanau2014NMTBYJoint} the authors propose a \ac{MLP} attention function
 \begin{equation}
 e_{i} = MLP(h_{i}, s_{j}), \forall i \in [1...T]
 \end{equation}
@@ -28,7 +28,7 @@ These energy values are usually normalized to provide weights $\alpha_{i}$ per h
 \begin{equation}
 c_{j} = \sum_{1}^{T} \alpha_{i} * h_{i}
 \end{equation}
-The intuition for $c_{j}$ is that it captures alignment information between the source sequence and the current position in the translation sequence. % It should be noted that previous work as shown the attention alignment becomes less informative for longer sequence \reminder{cite this}. 
+The intuition for $c_{j}$ is that it captures alignment information between the source sequence and the current position in the translation (i.e. target) sequence. % It should be noted that previous work as shown the attention alignment becomes less informative for longer sequence \reminder{cite this}. 
 
  
 
@@ -38,10 +38,10 @@ The intuition for $c_{j}$ is that it captures alignment information between the 
 \subsection{Decoder}
 
 
-The decoder is a feed-forward \ac{RNN} which encodes information to produce the translation. It reads the sequence forward producing hidden states $s_{j} \in R^{n}$ for each target word $y_{j}$ in the sequence of length $K$. In the literature, it can be viewed as a conditional language model \cite{koehn2017NMT} whose hidden state is initialize as $s_{0} = tanh(affine(h_{0}))$. The decoder has three inputs which include the previous word $y_{j-1}$, the previous hidden state $s_{j}$ and the context vector $c_{j}$ as mentioned in our discussion on the global attention mechanism. 
+The decoder is a feed-forward \ac{RNN} which encodes information to produce the translation. It reads the sequence forward producing hidden states $s_{j} \in R^{n}$ for each target word $y_{j}$ in the sequence of length $K$. In the literature, it can be viewed as a conditional language model \cite{koehn2017NMT} whose hidden state is initialized as $s_{0} = tanh(affine(h_{0}))$, where \textit{affine} refers to a linear layer learned weight matrix and bias term. The decoder has three inputs which include the previous word $y_{j-1}$, the previous decoder hidden state $s_{j}$ and the context vector $c_{j}$ as mentioned in our discussion on the global attention mechanism. 
 
 
-To generate the probabilities for each word in the target sentence, the decoder includes a \ac{MLP} which uses the max out activation over the hidden state values \cite{goodfellow2013maxout}. These maxout values are then fed to a final layer which represents the conditional distribution.  
+To generate the probabilities for each word in the target sentence, the decoder includes a \ac{MLP} which uses the maxout activation over the hidden state values \cite{goodfellow2013maxout}. These maxout values are then fed to a final layer which represents the conditional distribution.  
 \begin{equation}
 	t_{j} = maxout(affine([y_{j-1}; c_{j}; s_{j} ]))
 \end{equation}
@@ -104,9 +104,9 @@ In either formulation, our objectives deviate from the typical VAE models, as th
 
 As both $q_{\phi}$ and $p_{\theta}$ are chosen from the same distribution classes, it is possible to achieve the minimal divergence $KL(q || p) = 0$. This could potentially cause degeneracy in the latent space, because the distributions are not anchored to a fixed target. This means the model can push each datum's latent distributions apart in order to maximize the translation objective term. %In other contexts, a fixed distribution can encourage phenomena in the optimization process such as latent disentanglement, or interpolation between latent codes these would be unacceptable artifacts of our modelling choices. 
 
-Despite this drawback, the parametrized prior can be beneficial specifically to the translation setting. To translate on novel sentences with our variational distribution, we would require having target sentence $y$, which would otherwise not be available. Due to the KL term in our objective however, $q_{\phi}$ and $p_{\theta}$ should encode similar information, and $p_{\theta}$ is independent of the target sentence meaning it should be able to replace the variational distribution when translating sentences. %This is a convenient artifact of the training proceedure, which the generative model we consider propose a variation of this idea \cite{eikema2018AEVNMT}.  % This representation provides an interesting consideration as well when training \ac{VAE} models with autoregressive models known as "posterior collapse" which we discuss in chapter 4 when detailing considerations for incorporating normalizing flows. 
+Despite this drawback, the parametrized prior can be beneficial specifically to the translation setting. To translate on novel sentences with our variational distribution, we would require having target sentence $y$, which would otherwise not be available. Due to the KL term in our objective however, $q_{\phi}$ and $p_{\theta}$ should encode similar information, and $p_{\theta}$ is independent of the target sentence. This means $p_{\theta}$ should be able to replace the variational distribution when translating sentences. %This is a convenient artifact of the training proceedure, which the generative model we consider propose a variation of this idea \cite{eikema2018AEVNMT}.  % This representation provides an interesting consideration as well when training \ac{VAE} models with autoregressive models known as "posterior collapse" which we discuss in chapter 4 when detailing considerations for incorporating normalizing flows. 
 
-As the  posterior distribution conditions on both source and target sentences, we encode the target sentence $y$ as well during training. For the posterior, the input is then the concatenation of $h_{mean}^y$ and $h_{mean}^X$ . The outputs of the affine layer are passed to respective distributions layers $\mu(affine(h_{mean}))$ and $\sigma(\text{softplus} (affine(h_{mean})))$ which represent the sufficient statistics of a Gaussian distribution. The samples from these distributions are then included as additional inputs to the decoder at each timestep in the decoding process
+As the  posterior distribution conditions on both source and target sentences, we encode the target sentence $y$ as well during training. For the posterior, the input is then the concatenation of $h_{mean}^y$ and $h_{mean}^X$ . The outputs of the affine layer are passed to respective distributions layers $\mu(affine(h_{mean}))$ and $\sigma(\text{softplus} (affine(h_{mean})))$ which represent the sufficient statistics of a Gaussian distribution. The samples from these distributions are then included as additional inputs to the decoder at each timestep in the decoding process:
 \begin{equation}
 y_{j} = decoder(s_{j-1}, y_{j-1}, c_{j-1}, z)
 \end{equation}
@@ -121,7 +121,7 @@ In the generative model, we learn the joint distribution $p(x, y)$ which has oth
 	p(x, y) = \int p(y \cond{x, z})  p(x\cond{z}) p(z) dz
 \end{equation}
 
-In this framework, the latent variable $z$ represents shared aspects of language between the source and target language. We again introduce a variational distribution $q( z\cond{x, y})$ to arrive at an ELBO similar to the one seen in our discriminative model. We expand the \ac{ELBO} of this objective to explicitly show each model optimized
+In this framework, the latent variable $z$ represents shared aspects of language between the source and target language. We again introduce a variational distribution $q( z\cond{x, y})$ to arrive at an ELBO similar to the one seen in our discriminative model. We expand the \ac{ELBO} of this objective to explicitly show each model optimized:
 
 \begin{equation}
 E_{q_{\phi}(z \cond{x,y})} [ log p_{\theta}(y \cond{x, z})] +
@@ -136,7 +136,8 @@ In this approach the latent variable $z$ is viewed as shared information between
 
 For both the language model and translation systems, $z$ initializes the hidden state of an \ac{RNN}. In the translation system $z$  initializes the hidden state of the encoder to provide a global semantic context during translation, and otherwise behaves the same way as the baseline \ac{NMT} system. In the language model this corresponds to initializing a language model with the latent variable $z$. 
 
-The only other notable difference in our generative model is the inclusion of optimizing $p(X \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of the attention mechanism, and initialization by the latent variable $z$ instead of an encoder network. 
+
+The only other notable difference in our generative model is the inclusion of optimizing $p(X \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of (1) the attention mechanism, and (2) initialization by the latent variable $z$ instead of an encoder network. 
 
 One might note that our incorporation of the latent variable varies between the discriminative and generative scenario. Presumably, it is imaginable that the latent variable could be included in a similar fashion for either scenario. Fortunately, previous research suggests only minute differences on performance when incorporating latent variables for decoding as a hidden state initialization or input feeding approach \cite{bowman2015GeneratingSent}. 
 
@@ -179,6 +180,6 @@ Agnostic to either models we consider, an important consideration is encoding th
 h_{mean} = \frac{1}{T} \sum_{i=1}^{T} h_{i}
 \end{equation}
 
-These $h$ vectors then are passed to layers that amortize the distribution parameters for our latent variables. This includes $\mu(h)$ and $\sigma(h)$. Each of these functions introduce an additional affine layer to produce the parameters. The $\sigma$ function then also includes a softplus non-linearity in order to preserve the positive definite behavior of the distribution variance. These outputs represent the parameters for an isotropic Gaussian which is our chosen base distribution. In both models the posterior distribution is the concatenation of $[h_{mean}^{x} ; h_{mean}^{y}]$. For the prior in our discriminative model this is simply $h_{mean}^{x}$.
+These $h$ vectors then are passed to layers that amortize the distribution parameters for our latent variables. This includes $\mu(h)$ and $\sigma(h)$. Each of these functions introduce an additional affine layer to produce the parameters. The $\sigma$ function then also includes a softplus non-linearity in order to preserve the positive definite behavior of the distribution variance. These outputs represent the parameters for an isotropic Gaussian which is our chosen base distribution. In both models the posterior distribution is the concatenation of $[h_{mean}^{x} ; h_{mean}^{y}]$. For the prior in our discriminative model, this is simply $h_{mean}^{x}$.
 
 

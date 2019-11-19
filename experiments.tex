@@ -1,21 +1,59 @@
 \chapter{Experiments}
 
-In this chapter we discuss the experiments we ran to compare the performance of \ac{LVNMT} models with and without normalizing flows. We chose our hyperparameters for the core models to be based on the previous works whose models we considered in our analysis. These values can be found in the supplementary material section as well. 
+In this chapter we discuss the experiments we conducted to compare the performance of \ac{LVNMT} models with and without normalizing flows, as well as other experiments to empirically evaluate the impact of latent variables \ac{NMT} system.  
 
-The only other hyperparameters we tuned over were the KL-annealing schedule and the number of flows considered. 
+Our hyper-parameters for the models used in this thesis predominantly follow the values in \cite{eikema2018AEVNMT}. We include explicit values specific to our implementations in the supplement material. Generally speaking, all our \ac{GRU} consist of a single 256 hidden unit layer for each component, and our word embeddings are 256 units.
 
-The datasets we included in our analysis are the following, and were preprocesssed in the same ways as the previous works to give a more fair comparison between models. 
+To help prevent \textit{posterior collapse} in which the latent variable is ignored during training, we apply KL annealing and word dropout. KL annealing involves annealing the KL divergence term in the \ac{ELBO} during training \cite{bowman2015GeneratingSent}. We anneal  linearly over the first 80,000 steps. Word-dropout involves replace word embeddings with the unknown embedding with some $p$ probability to encourage the model to rely more on the latent variable. We choose a dropout rate of 0.1 for both models, although previous work suggested that this word dropout didn't necessarily help in the discriminative \ac{NMT} case \cite{harshil2018GNMT}. \reminder{depending on performance of VNMT might move to doing the pretrained trick they describe}
+
+We conducted our experiments with the IWSLT 2016 data sets available in the torch text library. \footnote{https://github.com/pytorch/text} We chose to use the En-De, De-En, Ar-En, and En-Ar language pairs as these are languages we could more naturally evaluate subjectively, although we explicitly note we did not do any formal human evaluation of translation quality. We list total sentence counts in the supplement material, and note that the counts vary between certain symmetrical language directions as these were the splits provided by the Torch Text library. \reminder{move last bit to supplement material, when you do add it also note that with the current TorchText we had to manually combine data as they do not do so with the current implementation}
+
+We represented our vocabulary for each language with \ac{BPE} \cite{sennrich2015NMTRarwordsBPE}. We used a vocabularly of 10,000 \ac{BPE}s per language, because we found that larger vocabularies resulted in sub-word units that occurred infrequently enough to be uninformative from a practical learning perspective. We performed \ac{BPE} using the Sentence Piece library. \footnote{https://github.com/google/sentencepiece} We trained our \ac{NMT} models on sequences of maximum length 50. The only other normalizing we did on our data sets was removing diacritics from the Arabic sentences. 
 
 
-We considered a number of translation scenarios including general translation, longer sentence translation, and out of domain translations. In each of these scenarios, we ran each model and compared our results along with the original results when possible. We predominantly stick with measuring BLEU scores as this metric was available in all previous studies. In addition to these translation scenarios, we also looked at the important of the latent variable in the neural machine translation systems considering both the magnitude of the KL divergence and manipulating the latent variable Z. 
+For our \ac{NMT} systems we largely stuck to hyperparameters 
+
+- Our networks use hidden layer sizes and embeddings of size 256 which is similar to the choices made in [eikeman et. al 2018] and we found for VNMT these parameters also worked better than those in [vnmt et. al.] for preliminary experiments on the WMT 2014 data they evaluated on. All specific params are in supplement material.
+We limit ourselves to these datasets, because it allows us to consider multiple language pairs and is a manageable size for our available computation budget. Due to these constraints, we caution readers that our results may not be applicable to datasets of different sizes.
 
 \section{General Translation}
 
-Table \reminder{\#} shows the BLEU score of all out on each respective data set. Our findings should (hopefully) at least be consistent between the previous works...else ugh ooooh.
+In this section we report our experimental results including normalizing flows in existing \ac{LVNMT} systems. Our hypothesis was that, given normalizing flows success in computer vision, that similar gains can be achieved by including normalizing flows on top of previously considered \ac{LVNMT} systems.  
 
-\section{Long Sentence Translation}
+Our baselines include the \ac{LVNMT} models we described in Chapter 2 without normalizing flows whose posterior distribution is the Isotropic Gaussian. To provide more fair comparison, our baselines optimized the \ac{ELBO} with the same number of Monte Carlo samples as our normalizing flows models. In these baseline cases, this corresponds to better approximations of the negative log-likelihood of sequence predictions as the KL divergence is analytic in the Gaussian case \cite{kingma2014autoencodingVB,rezende2014stochasticBackprop}.
 
-we created synthetic longer german sentences just as VNMT and compare on this. We also look at the change of BLEU score at increasing sentence lengths.
+ Table \reminder{\#} shows the BLEU score of our results on the test set after choosing the best performing models based on the validation set. 
+
+
+
+You want to report a baseline setting where you show how you perform without normalizing flows.
+
+
+%For our baselines, we train both a VNMT and VAENMT model without normalizing flows. To provide equal comparisons we use the same number of samples as our normalizing flows models. In [Eqn for elbo] this corresponds to better approximations to the negative log-likelihood of sequence predictions as the KL divergence is analytic in the Gaussian case \cite{kingma, }. We consider latent dimensions of 2, 128 [best working latent space in Schulz et. al. 2018 for VNMT], and 256 [value used in Eikman et. al. model]. We consider latent dimensions of 2 as we plot the latent space with normalizing flows, and have previously seen this number of latent dimensions to perform quite well compared to large latent dimensions. We use a linear annealing schedule over the first 2 epochs of training to encourage both models to rely on the latent variables which has been shown to improve overall performance [cite cite cite]. We also try without any annealing to provide a comparison on gains from this annealing. We abstain from using word-dropout which is another regularization technique others have found useful previously to help with some models. Particularly in the VNMT case [GNMT paper] found that it did not help improve performance that particular system. 
+
+%To evaluate our hypothesis, we then include normalizing flows on top of these existing systems keeping everything else in the system fixed. We again consider no annealing and annealing for 2 epochs, and train with N number of samples to approximate the ELBO during the training process. We consider 1, 2, 4, 8, and 16 flows to see if performance improves with an increasing number of flows. We test on the inverse autoregressive flows, and amortized planar flows available in the Pyro library. [might also consider Sylvester flows depending on the results from these...would require a smidge of implementing the amortization].
+
+%We evaluate performance on the BLEU score and also measure the (-ELBO) and NLL during training to determine performance gains from normalizing flows. 
+
+
+\section{Value of Latent Variable} 
+
+Hypothesis: If the latent variable is encoding information important to the translation process, it stands to reason setting Z = [0, 0 ,.... 0] during the evaluation process will negatively impact translation performance, as otherwise the latent variable z is not encoding useful information in the system.
+
+Previous works have often focused on none zero KL values as justification for the latent variable encoding information for the generative system. In the context of translation, the latent variable is included as an additional input to improve translation quality. To test this, at evaluation we set the latent variable to the 0 vector for our models to see the change in performance of BLEU score. We also report the KL divergence values to compare if the size of the KL term as a reference, although we leave it as future work to more definitely analyze a clear relationship between these two metrics. 
+
+\section{Language Modelling Performance}
+
+Hypothesis: Including normalizing flows improve the performance of the language model learned as part of the generative machine translation system. [This is related to a SPECIFIC model and is not applicable to the discriminative version of this stuff...just want to make sure that's clear]
+As previously discussed in chapter 3, the generative machine translation system is trained with a language model component as part of the optimization process. In this section, we look at how the performance of this component is affected by the inclusion of normalizing flows by evaluating the performance of the learned language model during the training procedure. We measure the BLEU score and perplexity  [ are there other metrics I should consider?] for the generated source side sentences in our GNMT model. Note that the -ELBO in [Fig of ELBO] is already reported as this module is learned along with the translation system.
+
+\section{Importance of Attention}
+
+Hypothesis:  Although performance will likely drop from the exclusion of attention in the translation system, we hypothesize that if the latent variable is adding additional information to the system, it wuold still outperform a vanilla RNN model without attention and that normalizing flows will further improve on this performance gain.
+
+In much previous work that has included latent variables in the translation system they build on the system from \cite{bahndanau et. al.} . This model, as previously discussed, includes an attention mechanism that is fed as input to the decoder to provide contextual information during translation. As such, attention can be viewed as a confounding factor when adding additional inputs to the RNN via the latent variable. If anything, a more natural choice is to make the attention mechanism itself a random variable (pretty sure people have done this too btw....) instead of creating an additional latent variable that is conditioned on the same information. To better understand a latent variable as input for informing the decoding process, we remove attention and compare to a seq2seq model without attention or latent variables. In this setting, we add the latent variable as an additional input to the generator network (MLP that produces word probabilities) like the attention mechanism to see if this fixed global variable is useful in of itself. We then add normalizing flows on top of this to see if the learned distribution offers any further performance gains. We use the same settings as our translation experiments, where the only difference is without attention.
+
+We measure ELBO, bleu, NLL again.
 
 %\section{Out of Domain Translation}
 
