@@ -10,8 +10,7 @@ We conducted our experiments with the IWSLT 2016 data sets available in the torc
 
 We represented our vocabulary for each language with \ac{BPE} \cite{sennrich2015NMTRarwordsBPE}. We used a vocabularly of 10,000 \ac{BPE}s per language, because we found that larger vocabularies resulted in sub-word units that occurred infrequently enough to be uninformative from a practical learning perspective. We performed \ac{BPE} using the Sentence Piece library. \footnote{https://github.com/google/sentencepiece} We trained our \ac{NMT} models on sequences of maximum length 50. The only other normalizing we did on our data sets was removing diacritics from the Arabic sentences. 
 
-
-For our \ac{NMT} systems we largely stuck to hyperparameters 
+Although most research in \ac{NMT} literature use beam search decoding, we choose to to use greedy decoding when translating sentences. Our general assumption is that if normalizing flows help with translation, this would carry over to heuristic searchers like beam search. Also, in recent literature studying the impact of beam search, larger beams do not necessarily translate to providing huge improvements in performance \cite{cohen2019unconstrained}. \reminder{ this...is a cop out midly because I saw performance degredation with my beam search algorithm set to 10... it worked fine on a 4,000,000 mil sentence dataset but that took waaaay to long}
 
 - Our networks use hidden layer sizes and embeddings of size 256 which is similar to the choices made in [eikeman et. al 2018] and we found for VNMT these parameters also worked better than those in [vnmt et. al.] for preliminary experiments on the WMT 2014 data they evaluated on. All specific params are in supplement material.
 We limit ourselves to these datasets, because it allows us to consider multiple language pairs and is a manageable size for our available computation budget. Due to these constraints, we caution readers that our results may not be applicable to datasets of different sizes.
@@ -38,15 +37,28 @@ You want to report a baseline setting where you show how you perform without nor
 
 \section{Value of Latent Variable} 
 
-Hypothesis: If the latent variable is encoding information important to the translation process, it stands to reason setting Z = [0, 0 ,.... 0] during the evaluation process will negatively impact translation performance, as otherwise the latent variable z is not encoding useful information in the system.
+%Hypothesis: If the latent variable is encoding information important to the translation process, it stands to reason setting Z = [0, 0 ,.... 0] during the evaluation process will negatively impact translation performance, as otherwise the latent variable z is not encoding useful information in the system.
 
-Previous works have often focused on none zero KL values as justification for the latent variable encoding information for the generative system. In the context of translation, the latent variable is included as an additional input to improve translation quality. To test this, at evaluation we set the latent variable to the 0 vector for our models to see the change in performance of BLEU score. We also report the KL divergence values to compare if the size of the KL term as a reference, although we leave it as future work to more definitely analyze a clear relationship between these two metrics. 
+Previous research which incorporate latent variables in \ac{NMT} systems have often focused on none-zero KL values as justification for the latent variable encoding information for the generative system. The argument in favor of this metric is that the magnitude of the KL can be used a heuristic to gauge the importance the latent variable plays in the translation system. This stems from the fact that typically the prior is a stationary target and if the KL term is small that the latent variable is uninformative to the system's performance. A limitation of this measurement is that it is not applicable in situation where the prior is not fixed. Particularly in our discriminative translation system.
+ To test this, at evaluation we set the latent variable to the 0 vector for our models to see the change in performance of BLEU score. We also report the KL divergence values to compare if the size of the KL term as a reference, although we leave it as future work to more definitely analyze a clear relationship between these two metrics. 
 
 \section{Language Modelling Performance}
 
 Hypothesis: Including normalizing flows improve the performance of the language model learned as part of the generative machine translation system. [This is related to a SPECIFIC model and is not applicable to the discriminative version of this stuff...just want to make sure that's clear]
 As previously discussed in chapter 3, the generative machine translation system is trained with a language model component as part of the optimization process. In this section, we look at how the performance of this component is affected by the inclusion of normalizing flows by evaluating the performance of the learned language model during the training procedure. We measure the BLEU score and perplexity  [ are there other metrics I should consider?] for the generated source side sentences in our GNMT model. Note that the -ELBO in [Fig of ELBO] is already reported as this module is learned along with the translation system.
 
+for Language model:
+Intrinsic metric: generate sequence that is expected: Lower the better (evaluating itself against...itself? you can evaluate. Use perplexity => method of identifying how close the model will predict a given sequence. How close to the language model it was trained on. 
+
+perplexity is sitll for the language model performance
+
+Extrinsic evaluation: Put your language model into something else. e.g. plug into MT system, does it help machine translation?
+How do we know if it helped or not? did bleu score go up or not? 
+does the effect adding the language model vs adding flows
+4 settings: LM + flows, LM + w/o flows, w/o LM + flows, w/o Lm model + w/o flows
+
+
+extrinstic
 \section{Importance of Attention}
 
 Hypothesis:  Although performance will likely drop from the exclusion of attention in the translation system, we hypothesize that if the latent variable is adding additional information to the system, it wuold still outperform a vanilla RNN model without attention and that normalizing flows will further improve on this performance gain.
@@ -54,6 +66,7 @@ Hypothesis:  Although performance will likely drop from the exclusion of attenti
 In much previous work that has included latent variables in the translation system they build on the system from \cite{bahndanau et. al.} . This model, as previously discussed, includes an attention mechanism that is fed as input to the decoder to provide contextual information during translation. As such, attention can be viewed as a confounding factor when adding additional inputs to the RNN via the latent variable. If anything, a more natural choice is to make the attention mechanism itself a random variable (pretty sure people have done this too btw....) instead of creating an additional latent variable that is conditioned on the same information. To better understand a latent variable as input for informing the decoding process, we remove attention and compare to a seq2seq model without attention or latent variables. In this setting, we add the latent variable as an additional input to the generator network (MLP that produces word probabilities) like the attention mechanism to see if this fixed global variable is useful in of itself. We then add normalizing flows on top of this to see if the learned distribution offers any further performance gains. We use the same settings as our translation experiments, where the only difference is without attention.
 
 We measure ELBO, bleu, NLL again.
+% #make sure code is clean
 
 %\section{Out of Domain Translation}
 
