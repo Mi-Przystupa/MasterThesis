@@ -34,6 +34,12 @@ Whether choosing the \ac{GRU}, or alternatives,  all \ac{NMT} models generally f
 
 The one other major consideration for \ac{NMT} is picking the best translation. A naive solution is to take the most likely word at each step of decoding. This can lead to the \textit{garden-path problem} in which case the most likely words at the current time step lead to a series of unlikely words later in translation \cite{koehn2017NMT}. Instead, typically \textit{beam search} is employed to maintain $n$ possible beams (translation hypotheses) \cite{koehn2017NMT}. At each step, after committing to the top $n$ beams  in the previous time step, a score function is calculated and the top $n$ new beams are selected. The score function is the partial probability of up to the current time step $i$, $\prod^{T}_{i=1} p(x_{i} | x_{<i})$. When a beam encounters an end-of-sentence token, or designated maximum length, it is held out and the number of active beams is reduced. Once all beams are in-active, the best translation is then chosen from the remaining beams based on their probability normalized by length $\frac{p(y_{1}, ..., y_{n})}{n}$. 
 
+\begin{figure}
+	\includegraphics[width=\linewidth]{seq2seq.png}
+	\caption{Simplest formulation of a \ac{seq2seq} model in \ac{NMT}} 
+	\label{fig:seqseq2}
+\end{figure}
+
 
 
 \section{Variational Autoencoders}
