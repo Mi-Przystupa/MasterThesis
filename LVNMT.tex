@@ -183,3 +183,9 @@ h_{mean} = \frac{1}{T} \sum_{i=1}^{T} h_{i}
 These $h$ vectors then are passed to layers that amortize the distribution parameters for our latent variables. This includes $\mu(h)$ and $\sigma(h)$. Each of these functions introduce an additional affine layer to produce the parameters. The $\sigma$ function then also includes a softplus non-linearity in order to preserve the positive definite behavior of the distribution variance. These outputs represent the parameters for an isotropic Gaussian which is our chosen base distribution. In both models the posterior distribution is the concatenation of $[h_{mean}^{x} ; h_{mean}^{y}]$. For the prior in our discriminative model, this is simply $h_{mean}^{x}$.
 
 
+\begin{figure}
+	\includegraphics[width=\linewidth]{LatentZEncoding.pdf}
+	\caption{General approach to encoding the parameters of the latent variable $Z$ in both models considered in this thesis}
+	\label{fig:latentZ}
+\end{figure}
+
