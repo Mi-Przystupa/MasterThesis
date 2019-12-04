@@ -55,6 +55,12 @@ p(y_{j} \cond{x, y_{<j}}) = affine(t_{j}).
 %It is responsible for generating each word $y_{j}$ in the sequence from information produced by the decoder to produced $p(y_{j} \cond(y_{<j}, x))$.
 
 
+\begin{figure}
+	\includegraphics[width=\linewidth]{PGMofModels.pdf}
+	\caption{Graphical models of \ac{LVNMT} models we consider. Left is the discriminative formulation and the Right is the joint or generative formulation.}
+	\label{fig:graphicalmodel}
+\end{figure}
+
 \section{Discriminative Translation Model}
 
 
