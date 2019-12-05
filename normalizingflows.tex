@@ -6,7 +6,7 @@ In this chapter we discuss our approach to incorporating normalizing flows into 
 \section{Applying Flows to Latent Variables}
 
 
-As a reminder, normalizing flows transform samples from a base distribution $p(z_{0}))$ to samples of more complex distribution by applying $k$ invertible functions $f_{i}$ sequentially: 
+As a reminder, normalizing flows transform samples from a base distribution $p(z_{0})$ to samples of more complex distribution by applying $k$ invertible functions $f_{i}$ sequentially: 
 
 \begin{equation}
 z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
@@ -14,24 +14,22 @@ z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_
 
 In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable Z is included as input (see figure).
 
-We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, internally, conditioning on $x$  means we condition on the data via $h_{mean}^{X}$ which is the averaged hidden representation of the source sentence produced by our inference network. This choice was to simplify decoding sentences at test time, as otherwise we could not properly condition our flows without the target sentence. 
+We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$. \footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network}. This choice was because in either model we can only condition on $x$ at decode time.
 
 During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation and is based on the derivation from \citealp[Section 4.2]{rezende2015VIwithNF}.
-
 \begin{align}
 \begin{split}\label{eq:2}
 &
-E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}^{(k)}}, \textbf{x}, y_{<j}) \bigg] \\
-& - KL(q_{\phi}(\textbf{z}_{(0)} \cond{\textbf{x}, \textbf{y}}) || p(\textbf{z}^{(k)} \cond{\textbf{x}})) \\
-&   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta \textbf{z}^{(k-1)}} \bigg| \bigg]  
+E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}_{k}}, \textbf{x}, y_{<j}) \bigg] \\
+& - KL(q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}}) || p(\textbf{z}_{k} \cond{\textbf{x}})) \\
+&   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f_{k}}{\delta \textbf{z}_{k-1}} \bigg| \bigg].
 \end{split}
 \end{align}
-
-Note that the biggest change is the inclusion of an expectation over the log absolute Jacobian, and in the joint distribution case, there would be the inclusion of optimizing a language model as well.
+This simply introduces maximizing the sum of  log absolute Jacobian from our flows. \footnote{In the joint distribution case, there would be the inclusion of optimizing a language model as well.}
 
 Unfortunately, in normalizing flows we cannot analytically derive the KL divergence and instead we must perform Monte Carlo sampling to optimize this objective. When evaluating translation quality, we set the latent variable to the expected value of the Gaussian distribution , $z_{0} = \mu_{\theta}(x)$, and apply our flows to this value.
 
-Specific to our discriminative \ac{LVNMT} system, we choose to share the flow parameters on both the prior and variational distribution, because the prior is learned. At decode time, we replace the variational distribution with the prior which as been optimized to generate distributions similar to the variational posterior. Learning separate flows for each distribution would otherwise be unnecessary computation overhead as the two base distributions should ideally match each other. This also changes the above equation to be quite similar to the original \ac{ELBO} without normalizing flows, with the exception that we use $z^{(k)}$ instead of $z^{(0)}$.
+Specific to our discriminative \ac{LVNMT} system, we choose to share the flow parameters on both the prior and variational distribution. At decode time, we replace the variational distribution with the prior which as been optimized to generate distributions similar to the variational posterior. Learning separate flows for each distribution would otherwise be unnecessary computation overhead as the two base distributions should ideally match each other. This also changes the above equation to be quite similar to the original \ac{ELBO} without normalizing flows, with the exception that we use $z_{k}$ instead of $z_{0}$.
 
 
 %\reminder{ move talking about objective in this section as more general case}
@@ -65,7 +63,7 @@ $u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, an
 \end{equation} 
 Here, $h'$ is the derivative of the nonlinear activation. For clarity, the second term in the right hand side of the equation is a dot product. Intuitively, this transformation can be seen as contracting or expanding the samples $z$ along a single plane in space. This is a simple transformation and requires many planar flows to represent complicated distributions.  %This need for more flows to effectively transform the distribution space makes them less computationally efficient compared to other flows, but offer a simple type of normalizing flow to evaluated against.
 
-Another drawback with planar flows is that their inverse is not guaranteed. \citet{rezende2015VIwithNF} propose a way to define the parameters such that the flows are invertible, but it still remains challenging to invert planar flows. This can be due to numerical instability in the activation function, which when inverted can lead to a non-existent value, or require numerical solvers to find a solution. Despite these potential pitfalls, they are a fairly simple transformation to compare the importance of more complex distributions for LVNMT
+%Another drawback with planar flows is that their inverse is not guaranteed. \citet{rezende2015VIwithNF} propose a way to define the parameters such that the flows are invertible, but it still remains challenging to invert planar flows. This can be due to numerical instability in the activation function, which when inverted can lead to a non-existent value, or require numerical solvers to find a solution. Despite these potential pitfalls, they are a fairly simple transformation to compare the importance of more complex distributions for LVNMT
 
 %Previous research suggest these data conditioned flows provide better performance compared to data agnostic flows in which the parameters are treated as directly learned parameters \cite{vdberg2018sylvester}.
 
@@ -83,7 +81,7 @@ z_{k+1}^{i} = \frac{z_{k}^{i} - \sigma(z_{k}^{1:i-1}, h)}{\mu(z_{k}^{1:i-1}, h)}
 \end{equation}
 $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of a \textit{MADE} network \cite{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the MADE layers are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
 \begin{equation}
-\bigg| \det \frac{\delta f}{\delta z_{k} } \bigg| = \prod_{t=0}^{T} \sigma(z_{k}^{1:t-1}, h^{mean}_{x})
+\bigg| \det \frac{\delta f}{\delta z} \bigg| = \prod_{t=0}^{T} \sigma(z_{k}^{1:t-1}, h^{mean}_{x})
 \end{equation}
 
 %The inverse is then defined as sequentially dependent which make these flows computationally expensive for density estimation. 
@@ -107,20 +105,19 @@ $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\
 %fyi
 %https://tex.stackexchange.com/questions/44450/how-to-align-a-set-of-multiline-equations
 
-An often cited challenge including latent variables in autoregressive models is  \textit{posterior collapse} \cite{he2018lagging}. This refers to the scenario where, in order to maximize the ELBO, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. In the typical case where the prior is a stationary Isotropic Gaussian distribution, this leads to uninformative latent variables. Part of this behaviour has been accredit to strong decoders, like autoregressive models which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
+An often cited challenge including latent variables in auto-regressive models is  \textit{posterior collapse} \cite{he2018lagging}. This refers to the scenario where, in order to maximize the \ac{ELBO}, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. In the typical case where the prior is a stationary isotropic Gaussian distribution, this leads to uninformative latent variables. Part of this behaviour has been accredit to strong decoders, like auto-regressive models which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
 
 KL-annealing typically involves annealing the weight $\beta$ of the divergence term in the \ac{ELBO}:
-
 \begin{align}
 \begin{split}\label{eq:2}
 &
-E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}^{(k)}}, \textbf{x}, y_{<j}) \bigg] \\
-& - \beta KL(q_{\phi}(\textbf{z}_{(0)} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}^{(k)} \cond{\textbf{x}})) \\
-&   +  \beta E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f^{(k)}}{\delta \textbf{z}^{(k-1)}} \bigg| \bigg]  
+E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}_{k}}, \textbf{x}, y_{<j}) \bigg] \\
+& - \beta KL(q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}_{k} \cond{\textbf{x}})) \\
+&   +  \beta E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f_{k}}{\delta \textbf{z}_{k-1}} \bigg| \bigg].  
 \end{split}
 \end{align}
-In normalizing flows research, it is often cited that KL-annealing helps improve performance even without strong decoders \cite{rezende2015VIwithNF,kingma2016IAF,tomczak2016Householder,Berg2018SylvesterNF,ziegler2019LatentNFforDiscrete}. For clarity, in our experiments, we use a linear schedule which increases the importance of our regularization terms after each mini-batch update. 
+In normalizing flows research, it is often cited that KL-annealing helps improve performance even without strong decoders \cite{rezende2015VIwithNF,kingma2016IAF,tomczak2016Householder,Berg2018SylvesterNF,ziegler2019LatentNFforDiscrete}. In our experiments, we use a linear schedule which increases the importance of our regularization terms after each mini-batch update. 
 
 
-Word dropout is a procedure during training time where with some probability $\rho$ the current word embedding for $x_{i}$ is replaced with the word embedding for the unknown token.\footnote{The unknown token is used to handle words not included in the vocabulary during training} The intuition for it's effectiveness is it encourages the model to depend more on the latent variable for information at decoding. This approach has particularly been important for improving performance of generative \ac{LVNMT} models \cite{harshil2018GNMT,eikema2018AEVNMT}.
+Word dropout is a procedure during training time where with some probability $\rho$ the current word embedding for $x_{i}$ is replaced with the word embedding for the unknown token.\footnote{The unknown token is used to handle words not included in the vocabulary during training.} The intuition for it's effectiveness is it encourages the model to depend more on the latent variable for information at decoding. This approach has particularly been important for improving performance of generative \ac{LVNMT} models \cite{harshil2018GNMT,eikema2018AEVNMT}.
 

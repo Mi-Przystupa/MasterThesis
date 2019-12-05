@@ -1,8 +1,6 @@
 \chapter{Experiments}
 
-In this chapter we discuss the experiments we conducted to compare the performance of \ac{LVNMT} models with and without normalizing flows, as well as other experiments to empirically evaluate the impact of latent variables \ac{NMT} system.  
-
-Our hyper-parameters for the models used in this thesis predominantly follow the values in \cite{eikema2018AEVNMT}. We include explicit values specific to our implementations in the supplement material. Generally speaking, all our \ac{GRU} consist of a single 256 hidden unit layer for each component, and our word embeddings are 256 units.
+In this chapter we discuss the experiments we conducted to compare the performance of \ac{LVNMT} models with and without normalizing flows, as well as other experiments to empirically evaluate the impact of latent variables \ac{NMT} system.  Our hyper-parameters for the models used in this thesis predominantly follow the values in \cite{eikema2018AEVNMT}. We include explicit values specific to our implementations in the supplement material.
 
 To help prevent \textit{posterior collapse} in which the latent variable is ignored during training, we apply KL annealing and word dropout. KL annealing involves annealing the KL divergence term in the \ac{ELBO} during training \cite{bowman2015GeneratingSent}. We anneal  linearly over the first 80,000 steps. Word-dropout involves replace word embeddings with the unknown embedding with some $p$ probability to encourage the model to rely more on the latent variable. We choose a dropout rate of 0.1 for both models, although previous work suggested that this word dropout didn't necessarily help in the discriminative \ac{NMT} case \cite{harshil2018GNMT}. \reminder{depending on performance of VNMT might move to doing the pretrained trick they describe}
 

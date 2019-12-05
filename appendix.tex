@@ -7,3 +7,36 @@ For example:
 \item diagrams of specialized equipment developed.;
 \item copies of questionnaires and survey instruments.
 \end{itemize}
+
+\begin{table}[]
+	\caption{List of hyperparameters used for experiments }
+	\label{tab:hyperparams}
+	\center
+	\begin{tabular}{|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{\textbf{Optimization Parameters}} \\ \hline
+		Optimizer                        & Adam                \\ \hline
+		Learning Rate                    & 0.0003              \\ \hline
+		KL Annealing Schedule            & 80,000 steps        \\ \hline
+		Word Dropout Rate                & 0.1                 \\ \hline
+		clip norm                        & 1.0                 \\ \hline
+		Mini Batch Size                  & 64                  \\ \hline
+		Number of Samples (ELBO)         & 10                  \\ \hline
+		\multicolumn{2}{|c|}{Model Parameters}                 \\ \hline
+		Source Embedding Size            & 256                 \\ \hline
+		Target Embedding Size            & 256                 \\ \hline
+		Encoder Hidden Dimensions        & 256                 \\ \hline
+		Number of Encoder Layers         & 1                   \\ \hline
+		Decoder Hidden Dimensions        & 256                 \\ \hline
+		Number of Decoder Layers         & 1                   \\ \hline
+		Dropout                          & 0.5                 \\ \hline
+		Z dim (latent variable)          & 2 , 218, 256        \\ \hline
+		\multicolumn{2}{|c|}{Global Attention Mechanism}       \\ \hline
+		Key Size                         & 512                 \\ \hline
+		Query Size                       & 256                 \\ \hline
+		\multicolumn{2}{|c|}{I.A.F Details}                    \\ \hline
+		Autoregressive NN                & 320 Units           \\ \hline
+		\multicolumn{2}{|c|}{Planar Flows Details}             \\ \hline
+		Hidden layer dimensions          & 150                 \\ \hline
+	\end{tabular}
+\end{table}
