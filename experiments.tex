@@ -173,6 +173,33 @@ In much previous work that has included latent variables in the translation syst
 
 We measure ELBO, bleu, NLL again.
 
+\begin{table}[]
+	\caption{Results for translation systems without attention mechanism. Baseline are deterministic version of models excluding latent variables.}
+	\label{tab:de_en_no_attention}
+\begin{tabular}{lllllllll}
+	\multicolumn{9}{c}{\textbf{Latent Dimension: 128}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \\ \hline
+	\multicolumn{1}{|l|}{\textbf{Flows}}                          & \multicolumn{1}{c|}{\textbf{0}}                                               & \multicolumn{1}{c|}{\textbf{1}}                             & \multicolumn{1}{c|}{\textbf{2}}                    & \multicolumn{1}{c|}{\textbf{4}}                    & \multicolumn{1}{c|}{\textbf{8}}                             & \multicolumn{1}{c|}{\textbf{16}}                            & \multicolumn{1}{l|}{\textbf{Baseline}}                               & \multicolumn{1}{l|}{\textbf{Model}}                                          \\ \hline
+	\rowcolor[HTML]{F9F9E1} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F9F9E1}Planar}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                                 & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.61}           & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.637} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.626} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}\textbf{6.931}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.782}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                        & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                                \\ \cline{1-1} \cline{3-7}
+	\rowcolor[HTML]{F9F9E1} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F9F9E1}IAF}             & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}6.249}}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}\textbf{6.417}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.321} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.278} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}5.983}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}5.918}          & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}6.383}} & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}VNMT}}          \\ \hline
+	\rowcolor[HTML]{F4DAD8} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F4DAD8}Planar}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}\textbf{7.365}}                   & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.2}            & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.217} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.19}  & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.105}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.246}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}}                        & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}}                                \\ \cline{1-7}
+	\rowcolor[HTML]{F4DAD8} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F4DAD8}IAF}             & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.365}                            & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.314}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.371} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.325} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.182}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}\textbf{7.413}} & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}0000}}  & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}          \\ \hline
+	\multicolumn{9}{c}{\textbf{Latent Dimension: 256}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \\ \hline
+	\multicolumn{1}{|l|}{\textbf{Flows}}                          & \multicolumn{1}{c|}{\textbf{0}}                                               & \multicolumn{1}{c|}{\textbf{1}}                             & \multicolumn{1}{c|}{\textbf{2}}                    & \multicolumn{1}{c|}{\textbf{4}}                    & \multicolumn{1}{c|}{\textbf{8}}                             & \multicolumn{1}{c|}{\textbf{16}}                            & \multicolumn{1}{l|}{\textbf{Baseline}}                               & \multicolumn{1}{l|}{\textbf{Model}}                                          \\ \hline
+	\rowcolor[HTML]{F9F9E1} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F9F9E1}\textit{Planar}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                                 & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.307}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.813} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.911} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}7.371}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}\textbf{7.383}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                        & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}}                                \\ \cline{1-1} \cline{3-7}
+	\rowcolor[HTML]{F9F9E1} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F9F9E1}\textit{IAF}}    & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}6.432}}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.452}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.474} & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.4}   & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}6.226}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F9F9E1}\textbf{6.708}} & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}6.383}} & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F9F9E1}\textit{VNMT}}} \\ \hline
+	\rowcolor[HTML]{F4DAD8} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F4DAD8}\textit{Planar}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}}                                 & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.398}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.217} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.332} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.262}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.074}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}}                        & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}}                                \\ \cline{1-1} \cline{3-7}
+	\rowcolor[HTML]{F4DAD8} 
+	\multicolumn{1}{|l|}{\cellcolor[HTML]{F4DAD8}\textit{IAF}}    & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}\textbf{7.505}}} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.349}          & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.344} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.278} & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.04}           & \multicolumn{1}{l|}{\cellcolor[HTML]{F4DAD8}7.359}          & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}0000}}  & \multicolumn{1}{l|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}\textit{GNMT}}} \\ \hline
+\end{tabular}
+\end{table}
+
 \section{Language Modelling Performance}
 
 Hypothesis: Including normalizing flows improve the performance of the language model learned as part of the generative machine translation system. [This is related to a SPECIFIC model and is not applicable to the discriminative version of this stuff...just want to make sure that's clear]
@@ -190,6 +217,9 @@ does the effect adding the language model vs adding flows
 
 
 extrinstic
+
+
+
 
 % #make sure code is clean
 
