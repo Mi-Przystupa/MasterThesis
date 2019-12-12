@@ -14,9 +14,9 @@ z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_
 
 In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable Z is included as input (see figure).
 
-We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$. \footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network}. This choice was because in either model we can only condition on $x$ at decode time.
+We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$. \footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network.} This choice was because in either model we can only condition on $x$ at decode time.
 
-During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation and is based on the derivation from \citealp[Section 4.2]{rezende2015VIwithNF}.
+During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation and is based on the derivation from \citet{rezende2015VIwithNF}, Section 4.2:
 \begin{align}
 \begin{split}\label{eq:2}
 &
@@ -53,11 +53,11 @@ For our analysis we consider two types of flows from the literature, but note th
 
 \subsection{Planar Flows}
 
-Planar flows were proposed in the work of \citet{rezende2015VIwithNF} and are functions of the following form
+Planar flows were proposed in the work of \citet{rezende2015VIwithNF}. They can be viewed as a scale-shift operation of the following form:
 \begin{equation}
-f_{i}(z) = z + u_{i} h(w_{i}^{T} z + b_{i})
+f_{i}(z) = z + u_{i} h(w_{i}^{T} z + b_{i}).
 \end{equation}
-$u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, and $h$ is a non-linear activation. For our experiments we use \textit{tanh} but the authors note that alternative activations are permissible. A convenient aspect of these flows is they provide an analytical term of the Jacobian:
+Here, $u_{i}, w_{i} \in R^{d}$ and $b \in R$ are the parameters of planar flow $i$, and $h$ is a non-linear activation. For our experiments we use \textit{tanh} but the authors note that alternative activations are permissible. A convenient aspect of these flows is they provide an analytical term of the Jacobian:
 \begin{equation}
 \bigg| \det \bigg( \frac{\delta f}{\delta z} \bigg)\bigg|  = \bigg| 1 + u^{t} h'(w_{i}^{T} z + b_{i})w \bigg|
 \end{equation} 
@@ -69,7 +69,7 @@ Here, $h'$ is the derivative of the nonlinear activation. For clarity, the secon
 
 As previously mentioned, the parameters of flows are generally made to be data dependent. In the case of planar flows this is achieved by utilizing a \textit{hyper-network} \cite{ha2016hypernets} which outputs the parameters of the flow:
  \begin{equation}
- MLP(h^{mean}_{x}) = (u, w, b)
+ MLP(h^{mean}_{x}) = (u, w, b).
  \end{equation}
 In our experiments each of our flows has a separate hyper-network with a single hidden layer with \textit{tanh} activations to enable flows to have sufficient flexibility to transform distributions.
  
@@ -77,9 +77,9 @@ In our experiments each of our flows has a separate hyper-network with a single 
 %\reminder{re-read details on IAF...this is missing a few crucial things..like what the heck is sigma or mu}
 Inverse autoregessive flows were proposed by \citet{kingma2016IAF} to enable parallel sampling by defining an invertible function as a sequentially dependent  inverse scale and shift  operation in a sequence of random variables
 \begin{equation}
-z_{k+1}^{i} = \frac{z_{k}^{i} - \sigma(z_{k}^{1:i-1}, h)}{\mu(z_{k}^{1:i-1}, h)}
+z_{k+1}^{i} = \frac{z_{k}^{i} - \sigma(z_{k}^{1:i-1}, h)}{\mu(z_{k}^{1:i-1}, h)}.
 \end{equation}
-$z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of a \textit{MADE} network \cite{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the MADE layers are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
+Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of a \textit{MADE} network \cite{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the MADE layers are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
 \begin{equation}
 \bigg| \det \frac{\delta f}{\delta z} \bigg| = \prod_{t=0}^{T} \sigma(z_{k}^{1:t-1}, h^{mean}_{x})
 \end{equation}
@@ -105,7 +105,7 @@ $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\
 %fyi
 %https://tex.stackexchange.com/questions/44450/how-to-align-a-set-of-multiline-equations
 
-An often cited challenge including latent variables in auto-regressive models is  \textit{posterior collapse} \cite{he2018lagging}. This refers to the scenario where, in order to maximize the \ac{ELBO}, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. In the typical case where the prior is a stationary isotropic Gaussian distribution, this leads to uninformative latent variables. Part of this behaviour has been accredit to strong decoders, like auto-regressive models which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
+An often cited challenge including latent variables in auto-regressive models is  \textit{posterior collapse} \cite{he2018lagging}. In order to maximize the \ac{ELBO}, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. This leads to uninformative latent variables typically when choosing the isotropic Gaussian as the prior. Part of this behaviour has been accredit to strong decoders, like auto-regressive models, which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
 
 KL-annealing typically involves annealing the weight $\beta$ of the divergence term in the \ac{ELBO}:
 \begin{align}

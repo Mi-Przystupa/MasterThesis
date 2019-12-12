@@ -1,10 +1,11 @@
 \chapter{Background}
-
+\label{ch:background}
 In this section, we provide background information on several subjects related to the work in this thesis. These include discussions on variational auto-encoders, normalizing flows, and a general description of \ac{NMT}. Further details into the particular \ac{NMT} architecture considered in this work are discussed in Chapter 3. % where more specific to this work are provided in chapter 3 on \ac{LVNMT} models.  
 
 
 
-\subsection{Neural Machine Translation}
+\section{Neural Machine Translation}
+\label{section:neuralMT}
 
 Statistical machine translation is a field which applies statistical methods to train computer systems that perform language translation. Historically these methods have typically involved learning phrase tables and language models to perform translation \cite{koehnSMT2010}. These components of the system are learned with statistical methods like expectation maximization by analyzing the \textit{bi-text} to extract relevant phrases and derive their likelihood under the provided bi-text.  In \ac{SMT} literature, \ac{NMT} refers specifically to training \ac{SMT} systems which incorporate neural networks as the primary model in the system, although machine learning researchers also are actively studying \ac{NMT} systems. 
 
@@ -95,7 +96,7 @@ log p_{\theta}(x) \geq \E_{p(\epsilon) } [ log(P_{\theta}(X \cond{f_{\phi}(x, \e
 
 Normalizing flows are an application of the change of variables theorem in machine learning. They introduce a series of  $k$ invertible functions $f_{1:k}$ which transform a base distribution $p(z_{0})$ into another distribution $p(z_{k})$. 
 \begin{equation}
-P(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
+p(z_{k}) = f_{k} \circ f_{k-1} \circ ... \circ f_{0}(p(z_{0}))
 \end{equation} 
 where $\circ$ is shorthand for the nested calls for functions $f_{i}$. This allows one to transform samples from the base distribution $z_{0}$ into samples $z_{k}$
 \begin{equation}

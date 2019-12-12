@@ -18,8 +18,7 @@
 	\vspace{-4mm}
 \end{figure}
 
-\section{Introduction}
-
+%\section{Introduction}
 Incorporating latent variables to explicitly capture aspects of language, such as semantics, has previously been shown to improve \ac{NMT} quality. This includes difficult scenarios in machine translation, such as translating longer sentences better \cite{Zhang2016VNMT, harshil2018GNMT, Su2018VRNMT}, demonstrating robustness to domain mis-match between training and test data \cite{eikema2018AEVNMT}, as well as enabling word level imputation for noisy sentences \cite{harshil2018GNMT}. 
 
 Another utility of \ac{LVNMT} systems is encoding lexical variation. This is achieved by sampling from the latent variables and using beam search to find semantically similar sentences \cite{schulz2018StochasticDecoder, shen2019diverse}. Generating semantically meaningful sentences is a useful property, because research has shown that synthetically generated \textit{bi-text} can improve translation system quality \cite{sennrich2015ImprovingNMT, edunov2018understandigBackTrans}. In machine translation literature, \textit{bi-text} generally refers to paired sentences from a source language and its translation into a target language. Depending on the model formulation, \ac{LVNMT} systems can likely help build even better machine translation systems by generating synthetic bi-text of sufficiently good quality. 
