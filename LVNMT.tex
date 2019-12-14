@@ -56,7 +56,7 @@ p(y_{j} \cond{x, y_{<j}}) = affine(t_{j}).
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{PGMofModels.pdf}
-	\caption{Graphical models of \ac{LVNMT} models we consider. Left is the discriminative formulation and the Right is the joint or generative formulation. Dashed lines represent the variational distribution, solid lines are the model.}
+	\caption{Graphical representation of \ac{LVNMT} systems we consider. Left, is the discriminative model. Right, is the joint or generative model. Dashed lines represent the variational distribution, solid lines are the model.}
 	\label{fig:graphicalmodel}
 \end{figure}
 
@@ -77,8 +77,8 @@ Another agnostic decision is setting the value of $z$ at decode time. During tra
 
 
 \begin{figure}
-	\includegraphics[width=\linewidth]{LatentZEncoding.pdf}
-	\caption{General approach to encoding the parameters of the latent variable $Z$ in both models considered in this thesis}
+	\includegraphics[width=\linewidth]{LatentZEncoding.png}
+	\caption{General approach to encoding the parameters of the latent variable $Z$ in both models considered. Encoder is part of inference network in generative case.}
 	\label{fig:latentZ}
 \end{figure}
 
@@ -162,7 +162,7 @@ Our primary goal is learning a translation system through the distribution $p(y 
 Our system largely follows the architecture described in \citet{eikema2018AEVNMT}, with the exception of sharing a projection layer from the latent variable to the translation and language model components. For both the systems, $z$ initializes the hidden state of an \ac{RNN}. Particularly for the translation system $z$  initializes the hidden state of the encoder to provide a global semantic context during translation. Otherwise, this model behaves the same way as the baseline \ac{NMT} system. In the language model this corresponds to initializing a language model with the latent variable $z$. 
 
 
-The only other notable difference in our generative model is the inclusion of optimizing $p(x \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of (1) the attention mechanism, and (2) initialization by the latent variable $z$ instead of an encoder network. One might note that our incorporation of the latent variable varies between the discriminative and generative scenario. Presumably, it is imaginable that the latent variable could be included in a similar fashion for either scenario. Fortunately, previous research suggests only minute differences on performance when incorporating latent variables for decoding as a hidden state initialization or input feeding approach \cite{bowman2015GeneratingSent}. 
+The only other notable difference in our generative model is the inclusion of optimizing $p(x \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of (1) the attention mechanism, and (2) initialization by the latent variable $z$ instead of an encoder network. One might note that our incorporation of the latent variable varies between the discriminative and generative scenario. %Presumably, it is imaginable that the latent variable could be included in a similar fashion for either scenario. Previous research suggests only minute differences on performance when incorporating latent variables for decoding as a hidden state initialization or input feeding approach \cite{bowman2015GeneratingSent}. 
 
 %This varies from our discriminative model which concatenated the latent variable with each input, and initialized the decoder hidden state with one from the encoder. An alternative approach could be to follow the discriminative model approach as well, but  
 

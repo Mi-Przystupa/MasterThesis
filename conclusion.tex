@@ -1,1 +1,11 @@
 \chapter{Conclusion}
+\reminder{everything here right now is complete crap....}
+In this work, we have considered normalizing flows in several settings and their impact on translation performance. From our experience, and based on our results, we would not recommend normalizing flows as a component to add on existing \ac{LVNMT} systems. They introduce a number of additional hyper-parameters and added computation costs that for their performance gains are trivial compared to other hyperparameters. We did observe minute improvements, but visualizing a 2D latent space of our variable suggests that our flows largely still find uni-modal representations.  
+
+We believe that repeated executions of our experiments would verify our hypothesis that the performance gains with including flows is statistically insignificant. 
+
+This conclusion does not necessarily mean that normalizing flows are necessarily useless in translation. It simply indicates more wholesome considerations must be taken, such as the end-to-end flow model considered in non-autoregressive translation system \cite{flowseq2019Xuezhe}.
+
+For instance, one future work direction could be expanding our work without attention. Perhaps a normalizing flows based attention method could provide robust performance. 
+
+
