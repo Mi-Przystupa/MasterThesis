@@ -16,12 +16,12 @@ In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distrib
 
 We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$. \footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network.} This choice was because in either model we can only condition on $x$ at decode time.
 
-During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation and is based on the derivation from \citet{rezende2015VIwithNF}, Section 4.2:
+During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation case for the discriminative model, and is based on the derivation from \citet{rezende2015VIwithNF}, Section 4.2:
 \begin{align}
 \begin{split}\label{eq:2}
 &
 E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_{\theta}(y_{j} \cond{\textbf{z}_{k}}, \textbf{x}, y_{<j}) \bigg] \\
-& - KL(q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}}) || p(\textbf{z}_{k} \cond{\textbf{x}})) \\
+& - KL(q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}}) || p_{\theta}(\textbf{z}_{k} \cond{\textbf{x}})) \\
 &   +  E_{q_{\phi}(\textbf{z}_{0} \cond{\textbf{x}, \textbf{y}})} \bigg[\sum_{k=1}^{K} \log \bigg|\frac{\delta f_{k}}{\delta \textbf{z}_{k-1}} \bigg| \bigg].
 \end{split}
 \end{align}

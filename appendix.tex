@@ -1,5 +1,9 @@
 \chapter{Supporting Materials}
 
+\section{Discussion on other latent dimensions}
+
+The most surprising results was with our best overall model which had a latent space of 2. We originally considered such a small latent space for plotting purposes, but found it to be quite effective. Our findings would seem congruent with previous results on the value of smaller latent spaces \cite{schulz2018StochasticDecoder}.\footnote{We do not know if other researchers have also considered such small latent spaces. } Interestingly, our conclusions with flow complexity are reverse for this latent space where mostly planar flows perform better than \ac{IAF}. This would suggest for especially small latent spaces, that flexible transformations are more of a hindrance than beneficial to translation performance. We chose to exclude this result from the main thesis because to our knowledge there is no precedence for such performance gains, and further investigation for this necessary. 
+
 This would be any supporting material not central to the dissertation.
 For example:
 \begin{itemize}
@@ -59,7 +63,7 @@ For example:
 
 \begin{table}[] 
 	\caption{BLEU score for our models with normalizing flows for De-En translation. The best performing models are in bold for each type and number of flows. \reminder{0 flows IS my baseline, explain what your basleines are in. Bold baseline 1 (column explainin it), baseline 2 (column explainin what it is?) } }
-	\label{tab:de_en_besttranslations}
+	\label{tab:de_en_besttranslations_supp}
 	\begin{tabular}{llllllcl}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   \\ \hline
 		\multicolumn{1}{|l|}{\textbf{Flows}}                          & \multicolumn{1}{l|}{\textbf{1}}                             & \multicolumn{1}{l|}{\textbf{2}}                             & \multicolumn{1}{l|}{\textbf{4}}                             & \multicolumn{1}{l|}{\textbf{8}}                             & \multicolumn{1}{l|}{\textbf{16}}                            & \multicolumn{1}{l|}{\textbf{0 (Baseline)}}                                    & \multicolumn{1}{c|}{\textbf{Model}}                                          \\ \hline
@@ -97,7 +101,7 @@ For example:
 
 \begin{table}[]
 	\caption{Results for translation systems without attention mechanism. Baseline are deterministic version of models excluding latent variables. \reminder{to baselines: no flows, no latent variable. Baseline = (2 parentheses, model without attention lean towards to have explanatory. Look at just table and caption people can understand the table ) when we remove this etc. etc. Move 0 flows to right column, so baseline 1: just add latent variable, baseline 2: model just with out attention, makes consistent with first table}}
-	\label{tab:de_en_no_attention}
+	\label{tab:de_en_no_attention_sub}
 	
 	\begin{tabular}{llllllccl}
 		\multicolumn{9}{c}{\textbf{Latent Dimension: 128}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \\ \hline
@@ -125,7 +129,7 @@ For example:
 
 \begin{table}
 	\caption{Average KL divergence for the test set. For \ac{VNMT} the KL term should be smaller meaning the distributions encoder similar information. for \ac{GNMT} they should be higher as these suggest more informative latent spaces.  }
-	\label{tab:de_en_kl_divergence}
+	\label{tab:de_en_kl_divergence_sup}
 	\begin{tabular}{lccccccl}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2 (KL Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                                      \\ \hline
 		\multicolumn{1}{|l|}{\textbf{Flows}}                       & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                    & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                   & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                          \\ \hline
@@ -163,7 +167,7 @@ For example:
 
 \begin{table}[]
 	\caption{Change in BLEU score when Z is set to 0 vector at decode time. Negative numbers indicate our models do better without Z included during translation.}
-	\label{tab:de_en_delta_bleu}
+	\label{tab:de_en_delta_bleu_sup}
 	\begin{tabular}{lccccccl}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2 (BLEU Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                                        \\ \hline
 		\multicolumn{1}{|l|}{\textbf{Flows}}                       & \multicolumn{1}{c|}{\textbf{1}}                    & \multicolumn{1}{c|}{\textbf{2}}                    & \multicolumn{1}{c|}{\textbf{4}}                    & \multicolumn{1}{c|}{\textbf{8}}                    & \multicolumn{1}{c|}{\textbf{16}}                   & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                           & \multicolumn{1}{c|}{\textbf{Model}}                                          \\ \hline
@@ -202,7 +206,7 @@ For example:
 
 \begin{table}[]
 	\caption{KL divergence for models without attention}
-	\label{tab:de_en_no_attention_kl_div}
+	\label{tab:de_en_no_attention_kl_div_sup}
 	\begin{tabular}{llllllccl}
 		\multicolumn{9}{c}{\textbf{Latent Dimension: 128 (KL divergence)}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \\ \hline
 		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{No Latent (Baseline)}}                 & \multicolumn{1}{c|}{\textbf{Model}}                                          \\ \hline
@@ -230,7 +234,7 @@ For example:
 
 \begin{table}[]
 	\caption{Change in BLEU score without attention. Positive values indicate latent variable Z is more important for translation}
-	\label{tab:de_en_no_attention_delta_bleu}
+	\label{tab:de_en_no_attention_delta_bleu_sup}
 	\begin{tabular}{llllllccl}
 		\multicolumn{9}{c}{\textbf{Latent Dimension: 128 (BLEU Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                               \\ \hline
 		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{No Latent (Baseline)}}                 & \multicolumn{1}{c|}{\textbf{Model}}                                          \\ \hline
@@ -258,7 +262,7 @@ For example:
 
 \begin{table}[]
 	\caption{BLEU scores for vaenmt without language model training. In bold are best performances.}
-	\label{tab:de_en_vaenmt_bleu_no_lm}	
+	\label{tab:de_en_vaenmt_bleu_no_lm_sup}	
 	\begin{tabular}{cccccccc}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2}}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  \\ \hline
 		\multicolumn{1}{|c|}{\textbf{Flows}}                          & \multicolumn{1}{c|}{\textbf{1}}                             & \multicolumn{1}{c|}{\textbf{2}}                             & \multicolumn{1}{c|}{\textbf{4}}                             & \multicolumn{1}{c|}{\textbf{8}}                    & \multicolumn{1}{c|}{\textbf{16}}                            & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                                    & \multicolumn{1}{c|}{\textbf{Model}}                                                  \\ \hline
@@ -296,7 +300,7 @@ For example:
 
 \begin{table}[]
 	\caption{BLEU score difference of \ac{GNMT} when language model is not included during training. }
-	\label{tab:de_en_vaenmt_bleu_no_lm_delta_bleu}	
+	\label{tab:de_en_vaenmt_bleu_no_lm_delta_bleu_sup}	
 	\begin{tabular}{cccccccc}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2 (BLEU Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                                                \\ \hline
 		\multicolumn{1}{|c|}{\textbf{Flows}}                          & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                    & \multicolumn{1}{c|}{\textbf{4}}                    & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                   & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                                  \\ \hline
@@ -334,7 +338,7 @@ For example:
 
 \begin{table}[]
 	\caption{Kl divergence of \ac{GNMT} models without language model training. }
-	\label{tab:de_en_vaenmt_bleu_no_lm_kl_divergence}	
+	\label{tab:de_en_vaenmt_bleu_no_lm_kl_divergence_sup}	
 	\begin{tabular}{cccccccc}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 2 (KL Divergence)}}                                                                                                                                                                                                                                                                                                                                                                                                                               \\ \hline
 		\multicolumn{1}{|c|}{\textbf{Flows}}                          & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                                  \\ \hline
@@ -368,3 +372,123 @@ For example:
 		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}             & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.87} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.74} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.99} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.98} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}3.84}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}                  \\ \hline
 	\end{tabular}
 \end{table}
+
+
+% some may be copies of above
+
+\begin{table}[]
+	\label{tab:no_attn_no_lm_bleu}
+	\caption{ No attention, no language model performance}
+	\begin{tabular}{cccccccc}
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 128}}                                                                                                                                                                                                                                                                                                                                                                                                                                                            \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                       & \multicolumn{1}{c|}{\textbf{1}}                            & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                           & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                                   & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar}       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.23}          & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.03} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.25} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.32} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.27}          & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                                & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}IAF}          & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}\textbf{7.5}}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.42} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.37} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.31} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.16}          & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}7.31}}          & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar}       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.2}           & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.22} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.19} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.11} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.25}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}\textbf{7.36}}                   & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-7}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.31}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.37} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.33} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.18} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}\textbf{7.41}} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.36}                            & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 256}}                                                                                                                                                                                                                                                                                                                                                                                                                                                            \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                       & \multicolumn{1}{c|}{\textbf{1}}                            & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                           & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                                   & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar}       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}\textbf{7.58}} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.45} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.28} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.44} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.33}          & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                                & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}\textit{IAF}} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.25}          & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.35} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.32} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.08} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}7.47}          & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}7.21}}          & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar}       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.4}           & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.22} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.33} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.26} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.07}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.35}          & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.34} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.28} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.04} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}7.36}          & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}\textbf{7.51}}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[]
+	\label{tab:no_attn_no_lm_kl_divergence}
+	\caption{ No attention, no language model performance kl divergence}
+	\begin{tabular}{cccccccc}
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 128 (KL Divergence)}}                                                                                                                                                                                                                                                                                                                                                                                                           \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}0.0}}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.28} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.48} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.84} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.12} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.58} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.38} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}2.97} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.89} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.57} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.53} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}2.23}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 256 (KL Divergence)}}                                                                                                                                                                                                                                                                                                                                                                                                           \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.02} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.01} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}0.0}}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.1}  & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}4.26} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.57} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.54} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.65} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.99} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.19} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.99} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.12} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}3.45} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}4.19}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[]
+	\label{tab:no_attn_no_lm_bleu_diff}
+	\caption{ No attention, no language model performance BLEU difference}	
+	\begin{tabular}{cccccccc}
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 128 (BLEU Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                         \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}0.0}}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.91} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.93} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.7}  & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.49} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.72} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.88} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.59} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.88} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.79} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}1.1}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}0.46}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+		\multicolumn{8}{c}{\textbf{Latent Dimension: 256 (BLEU Difference)}}                                                                                                                                                                                                                                                                                                                                                                                                         \\ \hline
+		\multicolumn{1}{|c|}{\textbf{Flows}}                 & \multicolumn{1}{c|}{\textbf{1}}                   & \multicolumn{1}{c|}{\textbf{2}}                   & \multicolumn{1}{c|}{\textbf{4}}                   & \multicolumn{1}{c|}{\textbf{8}}                   & \multicolumn{1}{c|}{\textbf{16}}                  & \multicolumn{1}{c|}{\textbf{0 (Baseline)}}                          & \multicolumn{1}{c|}{\textbf{Model}}                                         \\ \hline
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{CEF2F1} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{CEF2F1}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\cellcolor[HTML]{CEF2F1}0.0}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}0.0}}  & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{CEF2F1}GNMT (No LM)}} \\ \hline
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}Planar} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.76} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.98} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.29} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.48} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.51} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                       & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}}                               \\ \cline{1-6}
+		\rowcolor[HTML]{F4DAD8} 
+		\multicolumn{1}{|c|}{\cellcolor[HTML]{F4DAD8}IAF}    & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.66} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.5}  & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.63} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.41} & \multicolumn{1}{c|}{\cellcolor[HTML]{F4DAD8}0.49} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}0.68}} & \multicolumn{1}{c|}{\multirow{-2}{*}{\cellcolor[HTML]{F4DAD8}GNMT}}         \\ \hline
+	\end{tabular}
+\end{table}
+
+
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{vaenmt_planar_flows_plot.pdf}
+		\caption{\ac{GNMT} with planar flows}
+		\label{fig:gnmt_planar}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{vaenmt_iaf_flows_plot.pdf}
+		\caption{\ac{GNMT} \ac{IAF} flows}
+		\label{fig:gnmt_iaf}
+	\end{subfigure}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{vnmt_planar_flows_plot.pdf}
+		\caption{\ac{VNMT} with planar flows}
+		\label{fig:vnmt_planar}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{vnmt_iaf_flows_plot.pdf}
+		\caption{\ac{VNMT} \ac{IAF} flows}
+		\label{fig:vnmt_iaf}
+	\end{subfigure}
+\end{figure}
