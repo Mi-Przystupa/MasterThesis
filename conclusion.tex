@@ -1,11 +1,9 @@
 \chapter{Conclusion}
-\reminder{everything here right now is complete crap....}
-In this work, we have considered normalizing flows in several settings and their impact on translation performance. From our experience, and based on our results, we would not recommend normalizing flows as a component to add on existing \ac{LVNMT} systems. They introduce a number of additional hyper-parameters and added computation costs that for their performance gains are trivial compared to other hyperparameters. We did observe minute improvements, but visualizing a 2D latent space of our variable suggests that our flows largely still find uni-modal representations.  
 
-We believe that repeated executions of our experiments would verify our hypothesis that the performance gains with including flows is statistically insignificant. 
+In this work we considered the inclusion of normalizing flows in existing \ac{LVNMT} models. Our results would suggest that \ac{VNMT} benefited more from the inclusion of normalizing flows than \ac{GNMT}. We accredit this to the input-feeding approach of $z$ in \ac{VNMT} as opposed to the initialization approach of \ac{GNMT}. This is because, even without the language model, we find that neither $z$ or the optimization of the language model seem to account for our \ac{GNMT} performance gains. Interestingly, from our probing of the latent variable $z$, it seems performance gains may be accredited in part due to the stochastic behaviour introduced by $z$ instead of it's exact value. 
 
-This conclusion does not necessarily mean that normalizing flows are necessarily useless in translation. It simply indicates more wholesome considerations must be taken, such as the end-to-end flow model considered in non-autoregressive translation system \cite{flowseq2019Xuezhe}.
-
-For instance, one future work direction could be expanding our work without attention. Perhaps a normalizing flows based attention method could provide robust performance. 
+We believe normalizing flows do have much future potential benefits in machine translation systems. However, they are not necessarily something that can be added for a guaranteed performance benefit. To properly see benefit from normalizing flows, additional considerations must be taken into account. One potential future work is extending our findings to sequential latent variable \ac{NMT} systems. These have previously been introduced to help with longer sentence translation as well as diversifying translation. Another direction could be considering joint modelling of flow based models to generate synthetic sentence paired data. Synthetically generated data has been studied in machine translation as one approach to improve existing systems performances \cite{sennrich2015ImprovingNMT}. Most recently, discrete flows have been proposed showing improvement on existing flow based language modelling results \cite{tran2019discreteflows}. Their the authors cite the vocabulary size as a limiting factor, but from our results with a small \ac{BPE} vocabulary it may be plausible to still utilize these flows effectively for translation. 
 
 
+
+ 
