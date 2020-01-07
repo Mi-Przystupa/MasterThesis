@@ -12,9 +12,9 @@ As a reminder, normalizing flows transform samples from a base distribution $p(z
 z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
 \end{equation}
 
-In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable Z is included as input (see figure).
+In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable Z is included as input.
 
-We follow previous research which make flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$. \footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network.} This choice was because in either model we can only condition on $x$ at decode time.
+We follow previous research which makes flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$.\footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network.} This choice was because in either model we can only condition on $x$ at decode time.
 
 During training, we optimize the \ac{ELBO}, which we present again as formulated more specifically to machine translation case for the discriminative model, and is based on the derivation from \citet{rezende2015VIwithNF}, Section 4.2:
 \begin{align}
@@ -29,7 +29,7 @@ This simply introduces maximizing the sum of  log absolute Jacobian from our flo
 
 Unfortunately, in normalizing flows we cannot analytically derive the KL divergence and instead we must perform Monte Carlo sampling to optimize this objective. When evaluating translation quality, we set the latent variable to the expected value of the Gaussian distribution , $z_{0} = \mu_{\theta}(x)$, and apply our flows to this value.
 
-Specific to our discriminative \ac{LVNMT} system, we choose to share the flow parameters on both the prior and variational distribution. At decode time, we replace the variational distribution with the prior which as been optimized to generate distributions similar to the variational posterior. Learning separate flows for each distribution would otherwise be unnecessary computation overhead as the two base distributions should ideally match each other. This also changes the above equation to be quite similar to the original \ac{ELBO} without normalizing flows, with the exception that we use $z_{k}$ instead of $z_{0}$.
+Specific to our discriminative \ac{LVNMT} system, we choose to share the flow parameters on both the prior and variational distribution. At decoding time, we replace the variational distribution with the prior which has been optimized to generate distributions similar to the variational posterior. Learning separate flows for each distribution would otherwise be unnecessary computation overhead as the two base distributions should ideally match each other. This also changes the above equation to be quite similar to the original \ac{ELBO} without normalizing flows, with the exception that we use $z_{k}$ instead of $z_{0}$.
 
 
 %\reminder{ move talking about objective in this section as more general case}
@@ -49,7 +49,7 @@ Specific to our discriminative \ac{LVNMT} system, we choose to share the flow pa
 
 \section{Considered Flows for Analysis}
 
-For our analysis we consider two types of flows from the literature, but note that there are a variety of choices as research, at the time of writing, is quite active. The Jacobian is different for each flow we consider, offering alternative influences on the training procedure for our \ac{LVNMT} architectures. 
+For our analysis we consider two types of flows from the literature. Note, however, that there are a variety of choices as research, at the time of writing, is quite active. The Jacobian is different for each flow we consider, offering alternative influences on the training procedure for our \ac{LVNMT} architectures. 
 
 \subsection{Planar Flows}
 
@@ -79,7 +79,7 @@ Inverse autoregessive flows were proposed by \citet{kingma2016IAF} to enable par
 \begin{equation}
 z_{k+1}^{i} = \frac{z_{k}^{i} - \sigma(z_{k}^{1:i-1}, h)}{\mu(z_{k}^{1:i-1}, h)}.
 \end{equation}
-Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of a \textit{MADE} network \cite{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the MADE layers are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
+Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of an auto-regressive network which was proposed in the work of \citet{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the auto-regressive network are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
 \begin{equation}
 \bigg| \det \frac{\delta f}{\delta z} \bigg| = \prod_{t=0}^{T} \sigma(z_{k}^{1:t-1}, h^{mean}_{x})
 \end{equation}
@@ -100,12 +100,10 @@ Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\s
 
 \section{Regularization Tricks}
 
-
-
 %fyi
 %https://tex.stackexchange.com/questions/44450/how-to-align-a-set-of-multiline-equations
 
-An often cited challenge including latent variables in auto-regressive models is  \textit{posterior collapse} \cite{he2018lagging}. In order to maximize the \ac{ELBO}, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. This leads to uninformative latent variables typically when choosing the isotropic Gaussian as the prior. Part of this behaviour has been accredit to strong decoders, like auto-regressive models, which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
+An often cited challenge including latent variables in auto-regressive models is  \textit{posterior collapse} \cite{he2018lagging}. In order to maximize the \ac{ELBO}, the variational distribution parameters, for all the training data, are pushed to more closely match the prior. This leads to uninformative latent variables typically when choosing the isotropic Gaussian as the prior. Part of this behaviour has been accredited to strong decoders, like auto-regressive models, which are flexible enough to model the output even by ignoring $z$. We recommend \citet{chen2016VariationalLossyAE} or \citet{zhao2017InfoVAE} which provide more thorough discussions on the subject. For this work, we address this potential problem with previously proposed approaches referred to as KL-annealing \cite{bowman2015GeneratingSent,sonderby2016LadderVAE} and word dropout \cite{bowman2015GeneratingSent}.
 
 KL-annealing typically involves annealing the weight $\beta$ of the divergence term in the \ac{ELBO}:
 \begin{align}
@@ -119,5 +117,5 @@ E_{q(\textbf{z}_{0}\cond{\textbf{x}, \textbf{y}})} \bigg[ \sum_{j=1}^{p} \log p_
 In normalizing flows research, it is often cited that KL-annealing helps improve performance even without strong decoders \cite{rezende2015VIwithNF,kingma2016IAF,tomczak2016Householder,Berg2018SylvesterNF,ziegler2019LatentNFforDiscrete}. In our experiments, we use a linear schedule which increases the importance of our regularization terms after each mini-batch update. 
 
 
-Word dropout is a procedure during training time where with some probability $\rho$ the current word embedding for $x_{i}$ is replaced with the word embedding for the unknown token.\footnote{The unknown token is used to handle words not included in the vocabulary during training.} The intuition for it's effectiveness is it encourages the model to depend more on the latent variable for information at decoding. This approach has particularly been important for improving performance of generative \ac{LVNMT} models \cite{harshil2018GNMT,eikema2018AEVNMT}.
+Word dropout is a procedure during training time where with some probability $\rho$ the current word embedding for $x_{i}$ is replaced with the word embedding for the unknown token.\footnote{The unknown token is used to handle words not included in the vocabulary during training.} The intuition for its effectiveness is it encourages the model to depend more on the latent variable for information at decoding. This approach has particularly been important for improving performance of generative \ac{LVNMT} models \cite{harshil2018GNMT,eikema2018AEVNMT}.
 

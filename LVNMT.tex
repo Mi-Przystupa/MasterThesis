@@ -7,16 +7,16 @@ In this chapter we describe the \ac{LVNMT} models we considered as part of our a
 
 In this section we explain the base neural architecture which our \ac{LVNMT} build from. Inherently, there is nothing necessarily unique to this architecture for incorporating latent variables.  The ideas in each \ac{LVNMT} model considered are applicable to alternative neural architectures, such as the Transformer \cite{vaswani2017attentionTransformer}, which may benefit from introduced latent variables as well. 
 
-The \ac{NMT} architecture we consider is a \ac{seq2seq} model proposed by the work of  \citet{bahdanau2014NMTBYJoint}. The core components include source \& target word embeddings, an encoder, attention mechanism, and decoder. We describe all the layers except the word embeddings which are projections of the source and target vocabularies into a continuous space $\mathbb{R}^{n}$. When we refer words $x_{i}$ or $y_{i}$, these actually correspond to each word's associated word embedding as inputs to the model.  
+The \ac{NMT} architecture we consider is a \ac{seq2seq} model proposed by the work of  \citet{bahdanau2014NMTBYJoint}. The core components include source and target word embeddings, an encoder, attention mechanism, and decoder. We describe all the layers except the word embeddings which are projections of the source and target vocabularies into a continuous space $\mathbb{R}^{n}$. When we refer words $x_{i}$ or $y_{i}$, these actually correspond to each word's associated word embedding as inputs to the model.  
 
 \subsection{Encoder}
-The encoder is a bi-directional \ac{RNN} which generates hidden states from reading the source sequence $x$ both forwards and backwards. Formally, the \ac{RNN} produces forward hidden states $h^{f}_{i} \in \mathbb{R}^{n}$ for each input word $x_{i}$. Each $h^{f}_{i}$ is conditioned on all previous $x_{<i}$ words through $h_{i-1}^{f}$, and previous word embedding. The sequence is then read backwards by the \ac{RNN} to produce hidden states $h^{b}_{i} \in \mathbb{R}^{n}$ for each word $x_{i}$. Each $h^{b}_{i}$ is conditioned on all subsequent words in the sentence $x_{>i}$. The final hidden states are a concatenation of these complementary embeddings $h_{i}  = [h^{f}_{i} ; h^{b}_{i}]$ $ \forall i \in [0,...,T]$ where $T$ is the sentence length. Intuitively, each $h_{i}$ can be viewed as a contextual embedding of each source word in the sentence. We next describe how these embeddings are utilized for decoding via the \textit{global attention} mechanism. %This information improves the translation quality beyond initializing the decoder through the attention mechanism, described next. 
+The encoder is a bi-directional \ac{RNN} which generates hidden states from reading the source sequence $x$ both forwards and backwards. Formally, the \ac{RNN} produces forward hidden states $h^{f}_{i} \in \mathbb{R}^{n}$ for each input word $x_{i}$. Each $h^{f}_{i}$ is conditioned on all previous $x_{<i}$ words through $h_{i-1}^{f}$. The sequence is then read backwards by the \ac{RNN} to produce hidden states $h^{b}_{i} \in \mathbb{R}^{n}$ for each word $x_{i}$. Each $h^{b}_{i}$ is conditioned on all subsequent words in the sentence $x_{>i}$. The final hidden states are a concatenation of these complementary embeddings $h_{i}  = [h^{f}_{i} ; h^{b}_{i}]$ $ \forall i \in [0,...,T]$ where $T$ is the sentence length. Intuitively, each $h_{i}$ can be viewed as a contextual embedding of each source word in the sentence. We next describe how these embeddings are utilized for decoding via the \textit{global attention} mechanism. %This information improves the translation quality beyond initializing the decoder through the attention mechanism, described next. 
 
 \subsection{Global Attention}
 
 In the context of \ac{seq2seq} models, global attention mechanisms combine the encoder hidden states to inform the decoding process. This is achieved by a function of the current decoder state $s_{j}$ and encoder states $H \in \mathbb{R}^{T \times n}$ to output an energy vector $e \in \mathbb{R}^{T}$. In the work of \citet{bahdanau2014NMTBYJoint} the authors propose a \ac{MLP} attention function
 \begin{equation}
-e_{i} = MLP(h_{i}, s_{j}), \forall i \in [1...T].
+e_{i} = \text{MLP}(h_{i}, s_{j}), \forall i \in [1...T].
 \end{equation}
 
 These energy values are usually normalized to provide weights $\alpha_{i}$ per hidden state. \citet{bahdanau2014NMTBYJoint} choose the softmax function for this operation to produce a context vector $c_{j}$
@@ -37,19 +37,19 @@ Note that $\alpha_{i}$ is  a scalar while $h_{i}$ is a vector. The intuition for
 \subsection{Decoder}
 
 
-The decoder is a feed-forward \ac{RNN} which generates the translated target sentence. It reads the sequence forward producing hidden states $s_{j} \in R^{n}$ for each target word $y_{j}$ in the sequence of length $K$. In the literature, it can be viewed as a conditional language model \cite{koehn2017NMT} whose hidden state is initialized as $s_{0} = tanh(affine(h_{T}))$. \textit{Affine} refers to a linear layer learned weight matrix and bias term. The decoder has three inputs which include the previous word $y_{j-1}$, the previous decoder hidden state $s_{j-1}$ and the context vector $c_{j}$ as mentioned in our discussion on the global attention mechanism. 
+The decoder is a feed-forward \ac{RNN} which generates the translated target sentence. It reads the sequence forward producing hidden states $s_{j} \in R^{n}$ for each target word $y_{j}$ in the sequence of length $K$. In the literature, it can be viewed as a conditional language model \cite{koehn2017NMT} whose hidden state is initialized as $s_{0} = \text{tanh}(\text{affine}(h_{T}))$. \textit{Affine} refers to a linear layer learned weight matrix and bias term. The decoder has three inputs which include the previous word $y_{j-1}$, the previous decoder hidden state $s_{j-1}$ and the context vector $c_{j}$ as mentioned in our discussion on the global attention mechanism. 
 
 
 To generate the probabilities for each word in the target sentence, the decoder includes a \ac{MLP} which uses the maxout activation over the hidden state values \cite{goodfellow2013maxout}. These maxout values are then fed to a final layer which represents the conditional distribution:
 \begin{equation}
-	t_{j} = maxout(affine([y_{j-1}; c_{j}; s_{j} ]))
+	t_{j} = \text{maxout}(\text{affine}([y_{j-1}; c_{j}; s_{j} ]))
 \end{equation}
 \begin{equation}
-	maxout(t) = [max(t_{2j -1}, t_{2j})]_{j=1}^{K / 2}
+	\text{maxout}(t) = [\text{max}(t_{2j -1}, t_{2j})]_{j=1}^{K / 2}
 \end{equation}
 %The final affine layer uses these max out values as input to produce the probability distribution over the vocabulary as follows.
 \begin{equation}
-p(y_{j} \cond{x, y_{<j}}) = affine(t_{j}).
+p(y_{j} \cond{x, y_{<j}}) = \text{affine}(t_{j}).
 \end{equation}
 %It is responsible for generating each word $y_{j}$ in the sequence from information produced by the decoder to produced $p(y_{j} \cond(y_{<j}, x))$.
 
@@ -63,7 +63,7 @@ p(y_{j} \cond{x, y_{<j}}) = affine(t_{j}).
 
 \section{Representation of Latent Variables}
 
-Agnostic to either model we consider they follow the same process to encoder the latent variable $z$ which is visually shown in \ref{fig:latentZ}. There are slight variations in how $z$ is incorporated during decoding, or the exact inputs to our inference networks between the two models. Those details are described in each respective model section that follow. 
+Both models we consider follow the same process to encode the latent variable $z$ which is visually shown in \ref{fig:latentZ}. There are slight variations in how $z$ is incorporated during decoding, or the exact inputs to our inference networks between the two models. Those details are described in each respective model section that follow. 
 
 In either case, the inputs of our models will be the hidden representations produced by an encoder as described in the previous section. These hidden states are then averaged over to produce a single vector representation of the sentence:
 
@@ -135,7 +135,7 @@ Despite this drawback, the parametrized prior can be beneficial in the translati
 
 As the  posterior distribution conditions on both source and target sentences, we need to encode the target sentence $y$ as well during training. We accomplish this by simply passing our target sentence through our encoder as well and average over these target encoder states. The posterior's input is then the concatenation of $h_{mean}^{x}$ and $h_{mean}^{y}$. The samples from these distributions are then included as additional inputs to the decoder at each time-step in the decoding process:
 \begin{equation}
-y_{j} = decoder(s_{j}, y_{j-1}, c_{j}, z)
+y_{j} = \text{decoder}(s_{j}, y_{j-1}, c_{j}, z)
 \end{equation}
 
 
