@@ -37,7 +37,7 @@ Overall these results suggest that flows can indeed be added to existing models 
 
 
 \begin{table}[] 
-	\caption{BLEU score for our models with normalizing flows for De--En translation. The best  performances are in bold as compared to differing numbers of flows and the baseline. Yellow rows represent our \ac{VNMT} model results, and red our \ac{GNMT} results for differing number and type of flows. 
+	\caption{BLEU score for our models with normalizing flows for German-English (De--En) translation. The best  performances are in bold as compared to differing numbers of flows and the baseline. Yellow rows represent our \ac{VNMT} model results, and red our \ac{GNMT} results for differing number and type of flows. 
 		% \reminder{0 flows IS my baseline, explain what your basleines are in. Bold baseline 1 (column explainin it), baseline 2 (column explainin what it is?) }
 		 }
 	\label{tab:de_en_besttranslations}
@@ -86,7 +86,7 @@ Considering only the latent dimension size, we find an increase in performance s
 
 
 \begin{table}[]
-	\caption{Results for translation systems without attention mechanism. Baseline include models with normalizing flows and deterministic version of model excluding latent variables. \ac{VNMT} results are in yellow, and \ac{GNMT} results are in red with best models.  Best model across number and type of flow are in bold.%0
+	\caption{Results for translation systems without attention mechanism. Baseline includes models with normalizing flows and deterministic version of model excluding latent variables. \ac{VNMT} results are in yellow, and \ac{GNMT} results are in red with best models.  Best models across number and type of flow are in bold.%0
 		%\reminder{to baselines: no flows, no latent variable. Baseline = (2 parentheses, model without attention lean towards to have explanatory. Look at just table and caption people can understand the table ) when we remove this etc. etc. Move 0 flows to right column, so baseline 1: just add latent variable, baseline 2: model just with out attention, makes consistent with first table}
 		}
 	\label{tab:de_en_no_attention}
@@ -134,7 +134,7 @@ In comparison, \ac{GNMT} seems to generally show at least minute dependence on t
 In comparison, when we perform the same experiment with our \ac{LVNMT} systems without attention, we see more dependence on the latent variable for all models. Our results are in table \ref{tab:de_en_no_attention_delta_bleu} and \ref{tab:de_en_no_attention_kl_div}. In most cases with planar flows, we see our models depend more on the latent variable as opposed to without the system. Our \ac{IAF} flows models are more mixed in terms of performance changes, where in \ac{GNMT} our models depend more on the flows with a smaller latent dimension space as opposed to larger latent space. 
 
 \begin{table}
-	\caption{Average KL divergence for the test set. For \ac{VNMT} (yellow) the KL term should be smaller meaning the distributions encoder similar information. For \ac{GNMT} (red) they should be higher as these suggest more informative latent spaces.  }
+	\caption{Average KL divergence for the test set. For \ac{VNMT} (yellow) the KL term should be smaller, meaning the distributions encode similar information. For \ac{GNMT} (red) they should be higher as these suggest more informative latent spaces.  }
 	\label{tab:de_en_kl_divergence}
 	\begin{tabular}{lccccccl}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 128 (KL Divergence)}}                                                                                                \\ \hline
@@ -322,7 +322,7 @@ Table \ref{tab:no_attn_no_lm_bleu} shows results of \ac{GNMT} with no language m
 
 
 \begin{table}[]
-	\caption{Kl divergence of \ac{GNMT} models without language model training. }
+	\caption{KL divergence of \ac{GNMT} models without language model training. }
 	\label{tab:de_en_vaenmt_bleu_no_lm_kl_divergence}	
 	\begin{tabular}{cccccccc}
 		\multicolumn{8}{c}{\textbf{Latent Dimension: 128 (KL Divergence)}}                                                                                                                                                                                                                                                                                                                                                                                                                             \\ \hline

@@ -4,20 +4,6 @@
 \chapter{Introduction}
 \label{ch:Introduction}
 
-\begin{figure}[ht]
-	\vskip 0.2in
-	\begin{center}
-		%\textbf{Planar Flows}\par %\midskip
-		\centerline{\includegraphics[width=\columnwidth]{planar_flows_plot_edited.pdf}}
-		%\textbf{Inverse Autoregressive Flows}\par %\midskip
-		\centerline{\includegraphics[width=\columnwidth]{iaf_flows_plot_edited.pdf}}
-		\caption{Kernel density estimate contour plots of 10,000 samples from $q(z \cond{x, y})$ for each intermittent normalizing flow transformation of the distribution using planar (top) and \ac{IAF} (bottom) flows. The sentence pair is ``Als ich in meinen 20ern war, hatte ich meine erste Psychotherapie-Patientin." (De), translated to ``When I was in my 20s, I saw my very first psychotherapy client." (En)}
-		\label{flowsplot}
-	\end{center}
-	\vskip -0.2in
-	\vspace{-4mm}
-\end{figure}
-
 %\section{Introduction}
 Incorporating latent variables to explicitly capture aspects of language, such as semantics, has previously been shown to improve \ac{NMT} quality. This includes difficult scenarios in machine translation, such as translating longer sentences better \cite{Zhang2016VNMT, harshil2018GNMT, Su2018VRNMT}, demonstrating robustness to domain mis-match between training and test data \cite{eikema2018AEVNMT}, as well as enabling word level imputation for noisy sentences \cite{harshil2018GNMT}. 
 
@@ -29,15 +15,30 @@ To our knowledge, much of the research in \ac{LVNMT} applies amortised variation
 
 %A commonly cited problem in the literature is mode collapse, where the introduced variational distribution $q_{\phi}(z)$ matches the prior distribution and provides uninformative codes \cite{bowman2015GeneratingSent, chen2016VariationalLossyAE, schulz2018StochasticDecoder}. 
 
-The primary focus of this work, is to investigate the choice of variational distribution to encode information about translation data. A criticism of variational inference is the limited guarantees on approximating, even asymptotically, the true posterior distribution. There are several empirical findings which suggest that choosing the isotropic Gaussian as the variational distribution family may not truly represent latent aspects of language. One simple example is the power-law distribution behaviour that words exhibit in large corpora of text \cite{koehnSMT2010}. Previous work in language models showed experimental results demonstrating multi-modal distributive behavior even at the character level \cite{ziegler2019LatentNFforDiscrete}. These results suggest that assuming the latent factors follow an isotropic Gaussian distribution is not representative of the true distributive behavior of languages. If latent variables are to be more effectively utilized for machine translation, one needs to consider more flexible variational distributions. 
+The primary focus of this work is to investigate the choice of variational distribution to encode information about translation data. A criticism of variational inference is the limited guarantees on approximating, even asymptotically, the true posterior distribution. There are several empirical findings which suggest that choosing the isotropic Gaussian as the variational distribution family may not truly represent latent aspects of language. One simple example is the power-law distribution behaviour that words exhibit in large corpora of text \cite{koehnSMT2010}. Previous work in language models showed experimental results demonstrating multi-modal distributive behavior even at the character level \cite{ziegler2019LatentNFforDiscrete}. These results suggest that assuming the latent factors follow an isotropic Gaussian distribution is not representative of the true distributive behavior of languages. If latent variables are to be more effectively utilized for machine translation, one needs to consider more flexible variational distributions. 
 %one needs to consider more flexible variational distributions to better capture these latent factors of language that the currently de-facto choice of the isotropic Gaussian distribution does not allow.
 
-Normalizing flows represent one variational inference approach towards producing more accurate posterior distribution estimates. They accomplish this by transforming a base distribution into a more complex, possibly multi-modal, distribution \cite{tabak2010densityestimationdual,tabak2013familyofnonparametricdensity}. This change of variables is achieved by choosing a class invertible functions to transform samples from a chosen base distribution \cite{rezende2015VIwithNF}. This variational approach has the added benefit of empirical findings showing more accurate approximations of target posterior distributions when such distributions are known \cite{rezende2015VIwithNF}.
+Normalizing flows represent one variational inference approach towards producing more accurate posterior distribution estimates. They accomplish this by transforming a base distribution into a more complex, possibly multi-modal, distribution \cite{tabak2010densityestimationdual,tabak2013familyofnonparametricdensity}. This change of variables is achieved by invertible functions to transform samples from a chosen base distribution \cite{rezende2015VIwithNF}. This variational approach has the added benefit of empirical findings showing more accurate approximations of target posterior distributions when such distributions are known \cite{rezende2015VIwithNF}.
 
-In the literature, normalizing flows work has seen a number of successes in computer vision, and more recently in natural language processing as well. Particularly with the task of image generation, normalizing flows have been successful in producing high resolution images \cite{ kingma2016IAF, tomczak2016Householder,kingma2018GLOW, Berg2018SylvesterNF}. \citet{schulz2018StochasticDecoder} proposed normalizing flows as a potential improvement to their work in \ac{LVNMT} systems, but to our knowledge never actually expanded to this direction. Recent works have also considered flows on discrete distributions with modulus operations \cite{hoogeboom2019IntegerDiscreteFlows, tran2019discreteflows}.The work of \citet{ziegler2019LatentNFforDiscrete} where the authors focused on faster decoding for language models. Most closely related to our work is the work of \citet{flowseq2019Xuezhe} who created a  non-autoregressive normalizing flow machine translation system\cite{flowseq2019Xuezhe}.  Our work differs from there's as we consider incorporating normalizing flows with variations of existing autoregressive \ac{LVNMT} systems. 
+In the literature, normalizing flows work has seen a number of successes in computer vision, and more recently in natural language processing. Particularly with the task of image generation, normalizing flows have been successful in producing high resolution images \cite{ kingma2016IAF, tomczak2016Householder,kingma2018GLOW, Berg2018SylvesterNF}. \citet{schulz2018StochasticDecoder} proposed normalizing flows as a potential improvement to their work in \ac{LVNMT} systems, but to our knowledge never actually expanded to this direction. Recent works have also considered flows on discrete distributions with modulus operations \cite{hoogeboom2019IntegerDiscreteFlows, tran2019discreteflows}. Continuous normalizing flows have been used for nonautoregressive language modelling as one means to produce meaningful sentences with faster decoding \cite{ziegler2019LatentNFforDiscrete}. Most closely related to our work is the work of \citet{flowseq2019Xuezhe} who created a  non-autoregressive normalizing flow machine translation system.  Our work differs from \citet{flowseq2019Xuezhe} as we consider incorporating normalizing flows with variations of existing autoregressive \ac{LVNMT} systems. 
 
 
-We conjecture that normalizing flows are capable of helping achieve better posterior approximations of language factors, and that these improved estimates can help the expressiveness of latent codes in machine translation. Figure 1. shows kernel density estimate contour plots of samples after applying normalizing flow transformation
+\begin{figure}[ht]
+
+	\vskip 0.2in
+	\begin{center}
+		%\textbf{Planar Flows}\par %\midskip
+		\centerline{\includegraphics[width=\columnwidth]{planar_flows_plot_edited.pdf}}
+		%\textbf{Inverse Autoregressive Flows}\par %\midskip
+		\centerline{\includegraphics[width=\columnwidth]{iaf_flows_plot_edited.pdf}}
+		\caption{Kernel density estimate contour plots of 10,000 samples from $q(z \cond{x, y})$ for each intermittent normalizing flow transformation of the distribution using planar (top) and \ac{IAF} (bottom) flows. The sentence pair is ``Als ich in meinen 20ern war, hatte ich meine erste Psychotherapie-Patientin." (De), translated to ``When I was in my 20s, I saw my very first psychotherapy client." (En)}
+	\label{fig:flowsplot}
+	\end{center}
+	\vskip -0.2in
+	\vspace{-4mm}
+\end{figure}
+
+We conjecture that normalizing flows are capable of helping achieve better posterior approximations of language factors, and that these improved estimates can help the expressiveness of latent codes in machine translation. Figure~\ref{fig:flowsplot} shows kernel density estimate contour plots of samples after applying normalizing flow transformation
 of our distribution, as we further explain in Chapter 6 of this thesis.
 
 %One reason for this is because of the  by introducing an additional expectation dependent on the determinant of the Jacobian of these functions, which hypothesize can allow translation systems to become more robust to a mismatch of domain.   
@@ -48,11 +49,11 @@ of our distribution, as we further explain in Chapter 6 of this thesis.
 
 Overall, we make the following contributions:
 \begin{enumerate}
-	\item We investigate the use of normalizing flows in \ac{LVNMT} and discuss related considerations and challenges
+	\item We investigate the use of normalizing flows in \ac{LVNMT} and discuss related considerations and challenges.
 	
 	\item Our experiments seem to suggest that performance improvements due to the introduction of normalizing flows are minute compared to baseline models. 
 	
-	\item We visualize the learned posterior distribution of paired sentences using a 2D latent space to show how the normalizing flows transform the base distribution.
+	\item We find experimentally that when systems are trained with latent variables included, their direct contributions to final performance can be quite small. 
 \end{enumerate}
 
 %The rest of this paper is organized as follows.
