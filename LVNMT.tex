@@ -1,6 +1,6 @@
 \chapter{Latent Variable Neural Machine Translation}
 
-In this chapter we describe the \ac{LVNMT} models we considered as part of our analysis. We begin by describing the underlying \ac{NMT} architecture common to both approaches. We then describe our discriminative model $p(y \cond{x})$, and our generative model $p(x, y)$. These models abstractly are represented as graphical models in \ref{fig:graphicalmodel}. The final section discusses the practical details of representing the latent variables and defining the inputs from the appropriate components in each architecture. Throughout this chapter, we will often reference vectors as $\mathbb{R}^{n}$ but the actual dimensions for these vectors does not mean all the vectors are of the same dimensions and will otherwise specify the actual dimension whenever appropriate. 
+In this chapter we describe the \ac{LVNMT} models we considered as part of our analysis. We begin by describing the underlying \ac{NMT} architecture common to both approaches. We then describe our discriminative model $p(y \cond{x})$, and our generative model $p(x, y)$. These models abstractly are represented as graphical models in Figure~\ref{fig:graphicalmodel}. The final section discusses the practical details of representing the latent variables and defining the inputs from the appropriate components in each architecture. Throughout this chapter, we will often reference vectors as $\mathbb{R}^{n}$ but the actual dimensions for these vectors does not mean all the vectors are of the same dimensions and will otherwise specify the actual dimension whenever appropriate. 
 
 
 \section{Neural Architecture}
@@ -19,15 +19,15 @@ In the context of \ac{seq2seq} models, global attention mechanisms combine the e
 e_{i} = \text{MLP}(h_{i}, s_{j}), \forall i \in [1...T].
 \end{equation}
 
-These energy values are usually normalized to provide weights $\alpha_{i}$ per hidden state. \citet{bahdanau2014NMTBYJoint} choose the softmax function for this operation to produce a context vector $c_{j}$
+These energy values are usually normalized to provide weights $\alpha_{i}$ per hidden state. \citet{bahdanau2014NMTBYJoint} choose the softmax function for this operation to produce a context vector $c_{j}$:
 
 \begin{equation}
-	\alpha_{i} = \frac{exp(e_{i})}{\sum_{t=1}^{T} exp(e'_{t})}
+	\alpha_{i} = \frac{exp(e_{i})}{\sum_{t=1}^{T} exp(e'_{t})},
 \end{equation}
 \begin{equation}
-c_{j} = \sum_{1}^{T} \alpha_{i}  h_{i}
+c_{j} = \sum_{1}^{T} \alpha_{i}  h_{i}.
 \end{equation}
-Note that $\alpha_{i}$ is  a scalar while $h_{i}$ is a vector. The intuition for $c_{j}$ is that it captures alignment information between the source sequence and the current position in the translation (i.e. target) sequence \cite{bahdanau2014NMTBYJoint}. % It should be noted that previous work as shown the attention alignment becomes less informative for longer sequence \reminder{cite this}. 
+Note that $\alpha_{i}$ is  a scalar while $h_{i}$ is a vector. The intuition for $c_{j}$ is that it captures alignment information between the source sequence and the current position in the translation (in other words, target) sequence \cite{bahdanau2014NMTBYJoint}. % It should be noted that previous work as shown the attention alignment becomes less informative for longer sequence \reminder{cite this}. 
 
  
 
@@ -56,7 +56,7 @@ p(y_{j} \cond{x, y_{<j}}) = \text{affine}(t_{j}).
 
 \begin{figure}
 	\includegraphics[width=\linewidth]{PGMofModels.png}
-	\caption{Graphical representation of \ac{LVNMT} systems we consider. Left, is the discriminative model. Right, is the joint or generative model. Dashed lines represent the variational distribution. Solid lines are the model.}
+	\caption{Graphical representation of \ac{LVNMT} systems we consider. Left, is the discriminative model \cite{Zhang2016VNMT}. Right, is the joint or generative model \cite{eikema2018AEVNMT}. Dashed lines represent the variational distribution. Solid lines are the model.}
 	\label{fig:graphicalmodel}
 \end{figure}
 
@@ -129,7 +129,7 @@ E_{q_{\phi}(z \cond{x,y})}  [logp(y \cond{x, z} ) ] - KL (q_{\phi}(z \cond{x, y}
 %\end{equation}
 
 
-In either formulation, our objectives deviate from the typical VAE models, as the prior is a parametrized distribution $p_{\theta}(z \cond{x})$. Often, the prior is chosen to be a stationary distribution such as $N(0, I)$. This could potentially cause degeneracy in the latent space, because the distributions are not anchored to a fixed target. The model can push each datum's latent distributions apart in order to maximize the translation objective term. %In other contexts, a fixed distribution can encourage phenomena in the optimization process such as latent disentanglement, or interpolation between latent codes these would be unacceptable artifacts of our modelling choices. 
+In either formulation, our objectives deviate from the typical VAE models, as the prior is a parametrized distribution $p_{\theta}(z \cond{x})$. Often, the prior is chosen to be a stationary distribution such as $N(0, I)$. This could potentially cause degeneracy in the latent space, because the distributions are not anchored to a fixed target. The model can push each sentence pair's latent distributions apart arbitrarily in order to maximize the translation objective term. %In other contexts, a fixed distribution can encourage phenomena in the optimization process such as latent disentanglement, or interpolation between latent codes these would be unacceptable artifacts of our modelling choices. 
 
 Despite this drawback, the parametrized prior can be beneficial in the translation setting. To translate novel sentences with our variational distribution, we would require having target sentence $y$, which is not available at decode time. As we minimize KL divergence between $q_{\phi}$ and $p_{\theta}$, they should encode similar information. This means $p_{\theta}$ can replace the variational distribution when translating sentences \cite{Zhang2016VNMT}. %This is a convenient artifact of the training proceedure, which the generative model we consider propose a variation of this idea \cite{eikema2018AEVNMT}.  % This representation provides an interesting consideration as well when training \ac{VAE} models with autoregressive models known as "posterior collapse" which we discuss in chapter 4 when detailing considerations for incorporating normalizing flows. 
 
@@ -159,10 +159,8 @@ Our primary goal is learning a translation system through the distribution $p(y 
 \subsection{Latent Variable in Language and Translation Model}
 
 
-Our system largely follows the architecture described in \citet{eikema2018AEVNMT}, with the exception of sharing a projection layer from the latent variable to the translation and language model components. For both the systems, $z$ initializes the hidden state of an \ac{RNN}. Particularly for the translation system $z$  initializes the hidden state of the encoder to provide a global semantic context during translation. Otherwise, this model behaves the same way as the baseline \ac{NMT} system. In the language model this corresponds to initializing a language model with the latent variable $z$. 
-
-
-The only other notable difference in our generative model is the inclusion of optimizing $p(x \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of (1) the attention mechanism, and (2) initialization by the latent variable $z$ instead of an encoder network. One might note that our incorporation of the latent variable varies between the discriminative and generative scenario. %Presumably, it is imaginable that the latent variable could be included in a similar fashion for either scenario. Previous research suggests only minute differences on performance when incorporating latent variables for decoding as a hidden state initialization or input feeding approach \cite{bowman2015GeneratingSent}. 
+Our system largely follows the architecture described in \citet{eikema2018AEVNMT}, with the exception of sharing a projection layer from the latent variable to the translation and language model components. For both the systems, $z$ initializes the hidden state of an \ac{RNN}. Particularly for the translation system $z$  initializes the hidden state of the encoder to provide a global semantic context during translation. Otherwise, this model behaves the same way as the baseline \ac{NMT} system. In the language model this corresponds to initializing a language model with the latent variable $z$.
+The most notable difference in our generative model is the inclusion of optimizing $p(x \cond{z})$. The language model behaves similarly to the decoder in our base translation system with the exclusion of (1) the attention mechanism, and (2) initialization by the latent variable $z$ instead of an encoder network. The motivation for optimizing this component is to help improve translation quality by adding additional inductive bias for our latent space to encode share information between source and target sentence. %One might note that our incorporation of the latent variable varies between the discriminative and generative scenario. %Presumably, it is imaginable that the latent variable could be included in a similar fashion for either scenario. Previous research suggests only minute differences on performance when incorporating latent variables for decoding as a hidden state initialization or input feeding approach \cite{bowman2015GeneratingSent}. 
 
 %This varies from our discriminative model which concatenated the latent variable with each input, and initialized the decoder hidden state with one from the encoder. An alternative approach could be to follow the discriminative model approach as well, but  
 

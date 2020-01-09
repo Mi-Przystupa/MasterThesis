@@ -9,10 +9,9 @@ In this chapter we discuss our approach to incorporating normalizing flows into 
 As a reminder, normalizing flows transform samples from a base distribution $p(z_{0})$ to samples of more complex distribution by applying $k$ invertible functions $f_{i}$ sequentially: 
 
 \begin{equation}
-z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0})
+z_{k} = f_{k} \circ f_{k-1} ... \circ f_{2} \circ f_{1}(z_{0}) , z_{0} \sim p(z_{0}).
 \end{equation}
-
-In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable Z is included as input.
+In our \ac{LVNMT} models, $p(z_{0})$ refers to our variational posterior distributions. Each $f_{i}$ can be viewed as adding additional network layer between the base Gaussian distribution and the designated part of the translation model that the latent variable $z$ is included as input.
 
 We follow previous research which makes flows data dependent \cite{rezende2015VIwithNF,Berg2018SylvesterNF,kingma2016IAF,tomczak2016Householder}.  Generally speaking, this means each input sentence $x$ will have unique transforms $f_{i}$ enabling more flexible latent distributions per sentence pair. We leave further details on this to the next section as each flow handles this differently. Agnostic to the flow choice, we condition on the source sentence via $h_{mean}^{X}$.\footnote{As a reminder, this is the averaged hidden representation of the source sentence produced by our inference network.} This choice was because in either model we can only condition on $x$ at decode time.
 
@@ -79,7 +78,7 @@ Inverse autoregessive flows were proposed by \citet{kingma2016IAF} to enable par
 \begin{equation}
 z_{k+1}^{i} = \frac{z_{k}^{i} - \sigma(z_{k}^{1:i-1}, h)}{\mu(z_{k}^{1:i-1}, h)}.
 \end{equation}
-Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of an auto-regressive network which was proposed in the work of \citet{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the auto-regressive network are shared between data points. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
+Here, $z^{i}$ is the dimension $i$ of the vector of the latent variable $z$, $\sigma(\cdot)$ and $\mu(\cdot)$ are the outputs of an auto-regressive network which was proposed in the work of \citet{MADE2015germain}. Here, $h$ is referred to as the context input which we use $h= h^{mean}_{x}$. It represents the data conditioning of the normalizing flow, and otherwise the parameters of the auto-regressive network are shared between sentence pairs. Defining a normalizing flow in this way provides a lower triangular Jacobian which means the absolute Jacobian is a product of the diagonal terms 
 \begin{equation}
 \bigg| \det \frac{\delta f}{\delta z} \bigg| = \prod_{t=0}^{T} \sigma(z_{k}^{1:t-1}, h^{mean}_{x})
 \end{equation}
